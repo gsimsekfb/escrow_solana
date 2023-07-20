@@ -250,7 +250,7 @@ me.
 ## Sending the "hello" transaction
 
 Sending the hello transaction to the program is actually the easy
-part. It is done in the `say_hello` function in
+part. It is done in the `greet` function in
 `client/src/client.rs`. This function just creates a new instruction
 with the generated storage account as an argument and sends it to the
 program that we deployed.

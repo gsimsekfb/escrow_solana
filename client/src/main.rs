@@ -1,6 +1,12 @@
+use solana_sdk::signer::Signer;
+use solana_program::native_token::lamports_to_sol;
 use zeke_contract as zc;
 
 fn main() {
+    let pretty_print = |num: u64| { // e.g. 10000 -> 10_000
+        num.to_string().as_bytes().rchunks(3).rev().map(std::str::from_utf8)
+        .collect::<Result<Vec<&str>, _>>().unwrap().join("_")  // separator
+    };
     let args = std::env::args().collect::<Vec<_>>();
     if args.len() != 2 {
         eprintln!(
@@ -13,36 +19,54 @@ fn main() {
 
     let connection = zc::client::establish_connection().unwrap();
     println!(
-        "Connected to remote solana node running version ({}).",
+        "\n1. Connected to remote solana node running version ({}).\n",
         connection.get_version().unwrap()
     );
 
     let balance_requirement = zc::client::get_balance_requirement(&connection).unwrap();
     println!(
         "({}) lamports are required for this transaction.",
-        balance_requirement
+        pretty_print(balance_requirement)
     );
 
-    let player = zc::utils::get_player().unwrap();
-    let player_balance = zc::client::get_player_balance(&player, &connection).unwrap();
-    println!("({}) lamports are owned by player.", player_balance);
+    let user = zc::utils::get_player().unwrap();
+    let user_balance = zc::client::get_player_balance(&user, &connection).unwrap();
+    println!("User: {:?}",user.pubkey());
+    println!("Balance: {} Sol ({} lamports)", 
+        lamports_to_sol(user_balance), pretty_print(user_balance)
+    );
+    // println!("User {:?}: {} lamports",user.pubkey(), user_balance);
 
-    if player_balance < balance_requirement {
-        let request = balance_requirement - player_balance;
+    if user_balance < balance_requirement {
+        let request = balance_requirement - user_balance;
         println!(
-            "Player does not own sufficent lamports. Airdropping ({}) lamports.",
+            "User does not own sufficent lamports. Airdropping ({}) lamports.",
             request
         );
-        zc::client::request_airdrop(&player, &connection, request).unwrap();
+        zc::client::request_airdrop(&user, &connection, request).unwrap();
     }
 
     let program = zc::client::get_program(keypair_path, &connection).unwrap();
+    println!("Greeting Program: {:?}\n", program.pubkey());
 
-    zc::client::create_greeting_account(&player, &program, &connection).unwrap();
+    // 1. Optional - Create account for greeting program to write its data 
+    // (Fee: 5000)
+    // (a new addr for a given user and program combination)
+    // zc::client::create_greeting_account(&user, &program, &connection).unwrap();
 
-    zc::client::say_hello(&player, &program, &connection).unwrap();
+    // 2. write 
+    // println!("2. Write to chain: Sending greeting ... (sending tx) \n");
+    // zc::client::greet(&user, &program, &connection).unwrap();
+
+    // 3. read
+    println!("3. Read from chain:");
     println!(
-        "({}) greetings have been sent.",
-        zc::client::count_greetings(&player, &program, &connection).unwrap()
-    )
+        "> greeting count: {}",
+        zc::client::count_greetings(&user, &program, &connection).unwrap()
+    );
+    println!(
+        "> greeting obj: {:?}",
+        zc::client::get_greeting_obj(&user, &program, &connection).unwrap()
+    );
+    println!("\nEnd\n");
 }

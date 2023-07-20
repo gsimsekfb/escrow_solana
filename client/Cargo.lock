@@ -3579,6 +3579,7 @@ dependencies = [
  "borsh",
  "home",
  "solana-client",
+ "solana-program",
  "solana-sdk",
  "thiserror",
  "yaml-rust",

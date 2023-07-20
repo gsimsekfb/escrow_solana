@@ -6,8 +6,8 @@ use yaml_rust::YamlLoader;
 
 /// The schema for greeting storage in greeting accounts. This is what
 /// is serialized into the account and updated when hellos are sent.
-#[derive(BorshSerialize, BorshDeserialize)]
-struct GreetingSchema {
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+pub struct GreetingSchema {
     counter: u32,
 }
 
@@ -93,6 +93,27 @@ pub fn get_greeting_data_size() -> Result<usize> {
 /// Deserializes a greeting account and reports the value of its
 /// greeting counter.
 pub fn get_greeting_count(data: &[u8]) -> Result<u32> {
-    let decoded = GreetingSchema::try_from_slice(data).map_err(|e| Error::SerializationError(e))?;
+    let decoded = GreetingSchema::try_from_slice(data).map_err(
+        |e| Error::SerializationError(e)
+    )?;
     Ok(decoded.counter)
 }
+
+pub fn get_greeting_obj(data: &[u8]) -> Result<GreetingSchema> {
+    let decoded = GreetingSchema::try_from_slice(data).map_err(
+        |e| Error::SerializationError(e)
+    )?;
+    Ok(decoded)
+}
+
+// pub fn pretty_print(num: u64) -> String {
+//     let xx = num.to_string()
+//         .as_bytes()
+//         .rchunks(3)
+//         .rev()
+//         .map(std::str::from_utf8)
+//         .collect::<Result<Vec<&str>, _>>()
+//         .unwrap()
+//         .join(","); // separator
+//     xx
+// }

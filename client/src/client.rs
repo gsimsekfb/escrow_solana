@@ -94,11 +94,11 @@ pub fn get_program(keypair_path: &str, connection: &RpcClient) -> Result<Keypair
 /// address being derived means that we can regenerate it when we'd
 /// like to find the greeting account again later.
 pub fn create_greeting_account(
-    player: &Keypair,
+    user: &Keypair,
     program: &Keypair,
     connection: &RpcClient,
 ) -> Result<()> {
-    let greeting_pubkey = utils::get_greeting_public_key(&player.pubkey(), &program.pubkey())?;
+    let greeting_pubkey = utils::get_greeting_public_key(&user.pubkey(), &program.pubkey())?;
 
     if let Err(_) = connection.get_account(&greeting_pubkey) {
         println!("creating greeting account");
@@ -120,17 +120,17 @@ pub fn create_greeting_account(
         // opposed to create_account because create account doesn't
         // derive that address like that.
         let instruction = solana_sdk::system_instruction::create_account_with_seed(
-            &player.pubkey(),
+            &user.pubkey(),
             &greeting_pubkey,
-            &player.pubkey(),
+            &user.pubkey(),
             utils::get_greeting_seed(),
             lamport_requirement,
             utils::get_greeting_data_size()? as u64,
             &program.pubkey(),
         );
-        let message = Message::new(&[instruction], Some(&player.pubkey()));
+        let message = Message::new(&[instruction], Some(&user.pubkey()));
         let transaction =
-            Transaction::new(&[player], message, connection.get_recent_blockhash()?.0);
+            Transaction::new(&[user], message, connection.get_recent_blockhash()?.0);
 
         connection.send_and_confirm_transaction(&transaction)?;
     }
@@ -143,7 +143,7 @@ pub fn create_greeting_account(
 /// previously generated greeting account. The program will use that
 /// passed in address to update its greeting counter after verifying
 /// that it owns the account that we have passed in.
-pub fn say_hello(player: &Keypair, program: &Keypair, connection: &RpcClient) -> Result<()> {
+pub fn greet(player: &Keypair, program: &Keypair, connection: &RpcClient) -> Result<()> {
     let greeting_pubkey = utils::get_greeting_public_key(&player.pubkey(), &program.pubkey())?;
 
     // Submit an instruction to the chain which tells the program to
@@ -165,10 +165,24 @@ pub fn say_hello(player: &Keypair, program: &Keypair, connection: &RpcClient) ->
 }
 
 /// Pulls down the greeting account data and the value of its counter
-/// which ought to track how many times the `say_hello` method has
+/// which ought to track how many times the `greet` method has
 /// been run.
-pub fn count_greetings(player: &Keypair, program: &Keypair, connection: &RpcClient) -> Result<u32> {
-    let greeting_pubkey = utils::get_greeting_public_key(&player.pubkey(), &program.pubkey())?;
+pub fn count_greetings(user: &Keypair, program: &Keypair, connection: &RpcClient) -> Result<u32> {
+    let greeting_pubkey = utils::get_greeting_public_key(&user.pubkey(), &program.pubkey())?;
+    println!("Data Account to read: greeting_pubkey: {:?}", greeting_pubkey);
+    println!("(derived addr for a given user and program combination)");
+
     let greeting_account = connection.get_account(&greeting_pubkey)?;
     Ok(utils::get_greeting_count(&greeting_account.data)?)
+}
+
+pub fn get_greeting_obj(
+    user: &Keypair, program: &Keypair, connection: &RpcClient
+) -> Result<utils::GreetingSchema> {
+    let greeting_pubkey = utils::get_greeting_public_key(&user.pubkey(), &program.pubkey())?;
+    // println!("greeting_pubkey: {:?}", greeting_pubkey);
+    // println!("(addr for a given user and program combination)\n");
+
+    let greeting_account = connection.get_account(&greeting_pubkey)?;
+    Ok(utils::get_greeting_obj(&greeting_account.data)?)
 }
