@@ -169,9 +169,6 @@ pub fn greet(player: &Keypair, program: &Keypair, connection: &RpcClient) -> Res
 /// been run.
 pub fn count_greetings(user: &Keypair, program: &Keypair, connection: &RpcClient) -> Result<u32> {
     let greeting_pubkey = utils::get_greeting_public_key(&user.pubkey(), &program.pubkey())?;
-    println!("Data Account to read: greeting_pubkey: {:?}", greeting_pubkey);
-    println!("(derived addr for a given user and program combination)");
-
     let greeting_account = connection.get_account(&greeting_pubkey)?;
     Ok(utils::get_greeting_count(&greeting_account.data)?)
 }
@@ -180,9 +177,6 @@ pub fn get_greeting_obj(
     user: &Keypair, program: &Keypair, connection: &RpcClient
 ) -> Result<utils::GreetingSchema> {
     let greeting_pubkey = utils::get_greeting_public_key(&user.pubkey(), &program.pubkey())?;
-    // println!("greeting_pubkey: {:?}", greeting_pubkey);
-    // println!("(addr for a given user and program combination)\n");
-
     let greeting_account = connection.get_account(&greeting_pubkey)?;
     Ok(utils::get_greeting_obj(&greeting_account.data)?)
 }

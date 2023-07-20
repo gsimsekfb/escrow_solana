@@ -1,6 +1,7 @@
 use solana_sdk::signer::Signer;
 use solana_program::native_token::lamports_to_sol;
 use zeke_contract as zc;
+use zc::utils::get_greeting_public_key;
 
 fn main() {
     let pretty_print = |num: u64| { // e.g. 10000 -> 10_000
@@ -60,6 +61,9 @@ fn main() {
 
     // 3. read
     println!("3. Read from chain:");
+    let key = get_greeting_public_key(&user.pubkey(), &program.pubkey()).unwrap();
+    println!("Data account of the program to read: {:?}", key);
+    println!("(derived addr for a given user and program combination)");
     println!(
         "> greeting count: {}",
         zc::client::count_greetings(&user, &program, &connection).unwrap()
