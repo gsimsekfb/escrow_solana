@@ -1,4 +1,39 @@
-# Simple Solana Smart Contract Example
+# 0. Quick Usage
+
+E.g.
+```
+// Deploy Greeting program (contract)
+cd program
+cargo build-bpf
+solana program deploy target/deploy/helloworld.so 
+Program Id: Es5dTX5VbmPfE7NVBD6hozEC6M77NCHNVtZ1BGMdU7M6
+Fee: 10000
+TX:
+https://explorer.solana.com/tx/5YabTWTQcj6do8GhDqcc3XFe3YhRMFQWZCf8amtjLMAf7e1qzPs8pJi55xYJ91fbzrvBBiwNAEMpWeciGw9UEknN?cluster=devnet
+
+// Use Greeting program (contract)
+cd client
+cargo r ../program/target/deploy/helloworld-keypair.json
+
+1. Connected to remote solana node running version (1.16.4).
+
+(1_418_720) lamports are required for this transaction.
+User: 7GDXzkmtqNG2BZmesUyv2qrbRoovv71TApd1bWSsZAuc
+Balance: 9.992446251 Sol (9_992_446_251 lamports)
+Greeting Program: Es5dTX5VbmPfE7NVBD6hozEC6M77NCHNVtZ1BGMdU7M6
+
+2. Write to chain: Sending greeting ... (sending tx) 
+
+3. Read from chain:
+Data Account to read: greeting_pubkey: 5XFdLs68i3PZBoq4aVBzxGc7f7LJgozqHEU4GCjqZVx6
+(derived addr for a given user and program combination)
+> greeting count: 7
+> greeting obj: GreetingSchema { counter: 7 }
+
+End
+```
+
+# 1. Simple Solana Smart Contract Example
 
 This repository demonstrates how to create and invoke a program on the
 Solana blockchain. In Solana the word program is used to describe what
