@@ -2,7 +2,7 @@
 
 E.g.
 ```
-// Deploy Greeting program (contract)
+// Deploy Greeting program (smart contract)
 cd program
 cargo build-bpf
 solana program deploy target/deploy/helloworld.so 
@@ -11,7 +11,7 @@ Fee: 10000
 TX:
 https://explorer.solana.com/tx/5YabTWTQcj6do8GhDqcc3XFe3YhRMFQWZCf8amtjLMAf7e1qzPs8pJi55xYJ91fbzrvBBiwNAEMpWeciGw9UEknN?cluster=devnet
 
-// Use Greeting program (contract)
+// Use Greeting program (smart contract)
 cd client
 cargo r ../program/target/deploy/helloworld-keypair.json
 
