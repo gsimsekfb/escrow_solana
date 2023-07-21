@@ -25,7 +25,7 @@ Greeting Program: Es5dTX5VbmPfE7NVBD6hozEC6M77NCHNVtZ1BGMdU7M6
 2. Write to chain: Sending greeting ... (sending tx) 
 
 3. Read from chain:
-Data Account to read: 5XFdLs68i3PZBoq4aVBzxGc7f7LJgozqHEU4GCjqZVx6
+Data account of Greeting program to read: 5XFdLs68i3PZBoq4aVBzxGc7f7LJgozqHEU4GCjqZVx6
 (derived data account for a given user and program combination)
 > greeting count: 7
 > greeting obj: GreetingSchema { counter: 7 }
