@@ -15,20 +15,21 @@ https://explorer.solana.com/tx/5YabTWTQcj6do8GhDqcc3XFe3YhRMFQWZCf8amtjLMAf7e1qz
 cd client
 cargo r ../program/target/deploy/helloworld-keypair.json
 
-1. Connected to remote solana node running version (1.16.4).
+1. Connected to remote solana node running version (1.16.5).
 
 (1_418_720) lamports are required for this transaction.
 User: 7GDXzkmtqNG2BZmesUyv2qrbRoovv71TApd1bWSsZAuc
-Balance: 9.992446251 Sol (9_992_446_251 lamports)
+Balance: 15.988998251 Sol (15_988_998_251 lamports)
 Greeting Program: Es5dTX5VbmPfE7NVBD6hozEC6M77NCHNVtZ1BGMdU7M6
+Data account of the program to read: 5XFdLs68i3PZBoq4aVBzxGc7f7LJgozqHEU4GCjqZVx6
+(derived addr for a given user and program combination)
 
-2. Write to chain: Sending greeting ... (sending tx) 
+3. Write to chain: Sending greeting ... (sending tx)
+Success
 
-3. Read from chain:
-Data account of Greeting program to read: 5XFdLs68i3PZBoq4aVBzxGc7f7LJgozqHEU4GCjqZVx6
-(derived data account for a given user and program combination)
-> greeting count: 7
-> greeting obj: GreetingSchema { counter: 7 }
+4. Read from chain:
+> greeting count: 10
+> greeting obj: GreetingSchema { counter: 10 }
 
 End
 ```
