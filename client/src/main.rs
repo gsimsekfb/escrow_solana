@@ -18,6 +18,7 @@ fn main() {
     }
     let keypair_path = &args[1];
 
+    // 1. Connect to chain
     let connection = zc::client::establish_connection().unwrap();
     println!(
         "\n1. Connected to remote solana node running version ({}).\n",
@@ -48,22 +49,23 @@ fn main() {
     }
 
     let program = zc::client::get_program(keypair_path, &connection).unwrap();
-    println!("Greeting Program: {:?}\n", program.pubkey());
+    println!("Greeting Program: {:?}", program.pubkey());
+    let key = get_greeting_public_key(&user.pubkey(), &program.pubkey()).unwrap();
+    println!("Data account of the program to read: {:?}", key);
+    println!("(derived addr for a given user and program combination)\n");
 
-    // 1. Optional - Create account for greeting program to write its data 
+    // 2. Optional - Create account for greeting program to write its data 
     // (Fee: 5000)
     // (a new addr for a given user and program combination)
     // zc::client::create_greeting_account(&user, &program, &connection).unwrap();
 
-    // 2. write 
-    // println!("2. Write to chain: Sending greeting ... (sending tx) \n");
-    // zc::client::greet(&user, &program, &connection).unwrap();
+    // 3. write 
+    println!("3. Write to chain: Sending greeting ... (sending tx)");
+    zc::client::greet(&user, &program, &connection).unwrap();
+    println!("Success\n");
 
-    // 3. read
-    println!("3. Read from chain:");
-    let key = get_greeting_public_key(&user.pubkey(), &program.pubkey()).unwrap();
-    println!("Data account of the program to read: {:?}", key);
-    println!("(derived addr for a given user and program combination)");
+    // 4. read
+    println!("4. Read from chain:");
     println!(
         "> greeting count: {}",
         zc::client::count_greetings(&user, &program, &connection).unwrap()
