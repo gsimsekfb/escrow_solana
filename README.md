@@ -21,11 +21,11 @@ cargo r ../program/target/deploy/helloworld-keypair.json
 User: 7GDXzkmtqNG2BZmesUyv2qrbRoovv71TApd1bWSsZAuc
 Balance: 14.201951411 Sol (14_201_951_411 lamports)
 
-2. Creating account for greeting program to write its data...
+2. Creating account for greeting program to read/write its data...
 ... not created, account already exists 
 
 Greeting Program: gF8U28yn9WfGFxh7Ykq7tBfCUhUZJWp2dAf7urbevPm
-Data account of the program to read: 8b9KfuGKsC7HzyVTUrFPPvvEjinh512voroGSRgo7Beq
+Program's data account to read/write: 8b9KfuGKsC7HzyVTUrFPPvvEjinh512voroGSRgo7Beq
 (derived addr for a given user and program combination)
 
 3. Write to chain: Sending greeting ... (sending tx)
