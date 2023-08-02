@@ -52,13 +52,13 @@ fn main() {
 
     // 2. Optional - Create account for greeting program to write its data 
     // (Fee: 5000) (a new addr for a given user and program combination)
-    println!("\n2. Creating account for greeting program to write its data...");
+    println!("\n2. Creating account for greeting program to read/write its data...");
     zc::client::create_greeting_account(&user, &program, &connection).unwrap();
 
     // Print some info
     println!("\nGreeting Program: {:?}", program.pubkey());
     let key = greeting_public_key(&user.pubkey(), &program.pubkey()).unwrap();
-    println!("Data account of the program to read: {:?}", key);
+    println!("Program's data account to read/write: {:?}", key);
     println!("(derived addr for a given user and program combination)\n");
 
     // 3. write 

@@ -101,6 +101,7 @@ pub fn create_greeting_account(
 ) -> Result<()> {
     let greeting_pubkey = utils::greeting_public_key(&user.pubkey(), &program.pubkey())?;
 
+    let mut success = false;
     if let Err(_) = connection.get_account(&greeting_pubkey) {
         println!("... creating greeting account");
         let lamport_requirement =
@@ -134,10 +135,12 @@ pub fn create_greeting_account(
             Transaction::new(&[user], message, connection.get_recent_blockhash()?.0);
 
         let signature = connection.send_and_confirm_transaction(&transaction)?;
+        success = true;
         println!("Signature: {}", signature);
     }
 
-    println!("... not created, account already exists ");
+    if !success { println!("... not created, account may already exist "); }
+
     Ok(())
 }
 
@@ -172,14 +175,14 @@ pub fn greet(
     Ok(())
 }
 
-/// Pulls down the greeting account data and the value of its counter
-/// which ought to track how many times the `greet` method has
-/// been run.
-pub fn count_greetings(user: &Keypair, program: &Keypair, connection: &RpcClient) -> Result<u32> {
-    let greeting_pubkey = utils::greeting_public_key(&user.pubkey(), &program.pubkey())?;
-    let greeting_account = connection.get_account(&greeting_pubkey)?;
-    Ok(utils::get_greeting_count(&greeting_account.data)?)
-}
+// /// Pulls down the greeting account data and the value of its counter
+// /// which ought to track how many times the `greet` method has
+// /// been run.
+// pub fn count_greetings(user: &Keypair, program: &Keypair, connection: &RpcClient) -> Result<u32> {
+//     let greeting_pubkey = utils::greeting_public_key(&user.pubkey(), &program.pubkey())?;
+//     let greeting_account = connection.get_account(&greeting_pubkey)?;
+//     Ok(utils::get_greeting_count(&greeting_account.data)?)
+// }
 
 pub fn get_greeting_obj(
     user: &Keypair, program: &Keypair, connection: &RpcClient
