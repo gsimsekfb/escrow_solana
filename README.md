@@ -19,17 +19,22 @@ cargo r ../program/target/deploy/helloworld-keypair.json
 
 (1_418_720) lamports are required for this transaction.
 User: 7GDXzkmtqNG2BZmesUyv2qrbRoovv71TApd1bWSsZAuc
-Balance: 15.988998251 Sol (15_988_998_251 lamports)
-Greeting Program: Es5dTX5VbmPfE7NVBD6hozEC6M77NCHNVtZ1BGMdU7M6
-Data account of the program to read: 5XFdLs68i3PZBoq4aVBzxGc7f7LJgozqHEU4GCjqZVx6
+Balance: 14.201951411 Sol (14_201_951_411 lamports)
+
+2. Creating account for greeting program to write its data...
+... not created, account already exists 
+
+Greeting Program: gF8U28yn9WfGFxh7Ykq7tBfCUhUZJWp2dAf7urbevPm
+Data account of the program to read: 8b9KfuGKsC7HzyVTUrFPPvvEjinh512voroGSRgo7Beq
 (derived addr for a given user and program combination)
 
 3. Write to chain: Sending greeting ... (sending tx)
-Success
+> Quick read before write:
+> greeting obj: GreetingSchema { counter: 0 }
+> Success
 
 4. Read from chain:
-> greeting count: 10
-> greeting obj: GreetingSchema { counter: 10 }
+> greeting obj: GreetingSchema { counter: 1 }
 
 End
 ```

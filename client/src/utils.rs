@@ -74,7 +74,7 @@ pub fn get_greeting_seed() -> &'static str {
 
 /// Derives and returns the greeting account public key for a given
 /// PLAYER, PROGRAM combination.
-pub fn get_greeting_public_key(player: &Pubkey, program: &Pubkey) -> Result<Pubkey> {
+pub fn greeting_public_key(player: &Pubkey, program: &Pubkey) -> Result<Pubkey> {
     Ok(Pubkey::create_with_seed(
         player,
         get_greeting_seed(),
@@ -105,15 +105,3 @@ pub fn get_greeting_obj(data: &[u8]) -> Result<GreetingSchema> {
     )?;
     Ok(decoded)
 }
-
-// pub fn pretty_print(num: u64) -> String {
-//     let xx = num.to_string()
-//         .as_bytes()
-//         .rchunks(3)
-//         .rev()
-//         .map(std::str::from_utf8)
-//         .collect::<Result<Vec<&str>, _>>()
-//         .unwrap()
-//         .join(","); // separator
-//     xx
-// }

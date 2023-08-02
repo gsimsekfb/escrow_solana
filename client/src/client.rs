@@ -1,4 +1,5 @@
 use crate::utils;
+use crate::utils::greeting_public_key;
 use crate::{Error, Result};
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
@@ -98,10 +99,10 @@ pub fn create_greeting_account(
     program: &Keypair,
     connection: &RpcClient,
 ) -> Result<()> {
-    let greeting_pubkey = utils::get_greeting_public_key(&user.pubkey(), &program.pubkey())?;
+    let greeting_pubkey = utils::greeting_public_key(&user.pubkey(), &program.pubkey())?;
 
     if let Err(_) = connection.get_account(&greeting_pubkey) {
-        println!("creating greeting account");
+        println!("... creating greeting account");
         let lamport_requirement =
             connection.get_minimum_balance_for_rent_exemption(utils::get_greeting_data_size()?)?;
 
@@ -132,9 +133,11 @@ pub fn create_greeting_account(
         let transaction =
             Transaction::new(&[user], message, connection.get_recent_blockhash()?.0);
 
-        connection.send_and_confirm_transaction(&transaction)?;
+        let signature = connection.send_and_confirm_transaction(&transaction)?;
+        println!("Signature: {}", signature);
     }
 
+    println!("... not created, account already exists ");
     Ok(())
 }
 
@@ -143,22 +146,27 @@ pub fn create_greeting_account(
 /// previously generated greeting account. The program will use that
 /// passed in address to update its greeting counter after verifying
 /// that it owns the account that we have passed in.
-pub fn greet(player: &Keypair, program: &Keypair, connection: &RpcClient) -> Result<()> {
-    let greeting_pubkey = utils::get_greeting_public_key(&player.pubkey(), &program.pubkey())?;
+pub fn greet(
+    player: &Keypair, 
+    program: &Keypair, 
+    connection: &RpcClient
+) -> Result<()> {
+    let greeting_pubkey = greeting_public_key(&player.pubkey(), &program.pubkey())?;
 
     // Submit an instruction to the chain which tells the program to
     // run. We pass the account that we want the results to be stored
-    // in as one of the accounts arguents which the program will
+    // in as one of the accounts arguments which the program will
     // handle.
 
     let instruction = Instruction::new_with_bytes(
         program.pubkey(),
-        &[],
+        &[1], // Todo: For now, [1] increments the counter
         vec![AccountMeta::new(greeting_pubkey, false)],
     );
     let message = Message::new(&[instruction], Some(&player.pubkey()));
-    let transaction = Transaction::new(&[player], message, connection.get_recent_blockhash()?.0);
-
+    let transaction = Transaction::new(
+        &[player], message, connection.get_recent_blockhash()?.0
+    );
     connection.send_and_confirm_transaction(&transaction)?;
 
     Ok(())
@@ -168,7 +176,7 @@ pub fn greet(player: &Keypair, program: &Keypair, connection: &RpcClient) -> Res
 /// which ought to track how many times the `greet` method has
 /// been run.
 pub fn count_greetings(user: &Keypair, program: &Keypair, connection: &RpcClient) -> Result<u32> {
-    let greeting_pubkey = utils::get_greeting_public_key(&user.pubkey(), &program.pubkey())?;
+    let greeting_pubkey = utils::greeting_public_key(&user.pubkey(), &program.pubkey())?;
     let greeting_account = connection.get_account(&greeting_pubkey)?;
     Ok(utils::get_greeting_count(&greeting_account.data)?)
 }
@@ -176,7 +184,7 @@ pub fn count_greetings(user: &Keypair, program: &Keypair, connection: &RpcClient
 pub fn get_greeting_obj(
     user: &Keypair, program: &Keypair, connection: &RpcClient
 ) -> Result<utils::GreetingSchema> {
-    let greeting_pubkey = utils::get_greeting_public_key(&user.pubkey(), &program.pubkey())?;
+    let greeting_pubkey = utils::greeting_public_key(&user.pubkey(), &program.pubkey())?;
     let greeting_account = connection.get_account(&greeting_pubkey)?;
     Ok(utils::get_greeting_obj(&greeting_account.data)?)
 }
