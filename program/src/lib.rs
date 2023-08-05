@@ -10,9 +10,8 @@ use solana_program::{
 // The type of state managed by this program. The type defined here
 // much match the `GreetingAccount` type defined by the client.
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-pub struct GreetingAccount {
-    // The number of greetings that have been sent to this account.
-    pub counter: u32,
+pub struct Shop {
+    pub reps: [u32; 3],
 }
 
 // Declare the programs entrypoint. The entrypoint is the function
@@ -43,11 +42,11 @@ pub fn process_instruction(
         return Err(ProgramError::IncorrectProgramId);
     }
 
-    msg!("--- account.data: {:?}", account.data.borrow());
+    msg!("--- account.data before: {:?}", account.data.borrow());
 
     // Deserialize the greeting information from the account, modify
     // it, and then write it back.
-    let mut account_data = GreetingAccount::try_from_slice(
+    let mut shop_data = Shop::try_from_slice(
         &account.data.borrow()
     )?;
     match instruction_data {
@@ -56,13 +55,15 @@ pub fn process_instruction(
             let mut data = (*account.data).borrow_mut();
             *data = &mut [];
         } ,
-        [1] => { // Original code: increment one
+        [1] => { // Set first rep of a shop
             msg!("--- instruction 1: increment greeting.counter");
-            account_data.counter += 1;
-            account_data.serialize(&mut &mut account.data.borrow_mut()[..])?;
+            shop_data.reps[0] += 1;
+            shop_data.serialize(&mut &mut account.data.borrow_mut()[..])?;
         },
        _ => todo!()
     } 
+
+    msg!("--- account.data after: {:?}", account.data.borrow());
 
     Ok(())
 }

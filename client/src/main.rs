@@ -61,6 +61,9 @@ fn main() {
     println!("Program's data account to read/write: {:?}", key);
     println!("(derived addr for a given user and program combination)\n");
 
+    let sz = zc::utils::get_greeting_data_size().unwrap() as u64;
+    println!("--- sz: {}", sz);
+
     // 3. write 
     println!("3. Write to chain: Sending greeting ... (sending tx)");
     println!("> Quick read before write:");

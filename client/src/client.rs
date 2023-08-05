@@ -179,18 +179,9 @@ pub fn greet(
     Ok(())
 }
 
-// /// Pulls down the greeting account data and the value of its counter
-// /// which ought to track how many times the `greet` method has
-// /// been run.
-// pub fn count_greetings(user: &Keypair, program: &Keypair, connection: &RpcClient) -> Result<u32> {
-//     let greeting_pubkey = utils::greeting_public_key(&user.pubkey(), &program.pubkey())?;
-//     let greeting_account = connection.get_account(&greeting_pubkey)?;
-//     Ok(utils::get_greeting_count(&greeting_account.data)?)
-// }
-
 pub fn get_greeting_obj(
     user: &Keypair, program: &Keypair, connection: &RpcClient
-) -> Result<utils::GreetingSchema> {
+) -> Result<utils::ShopSchema> {
     let greeting_pubkey = utils::greeting_public_key(&user.pubkey(), &program.pubkey())?;
     let greeting_account = connection.get_account(&greeting_pubkey)?;
     println!("--- greeting_account_data: {:?}", &greeting_account.data);

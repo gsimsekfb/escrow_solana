@@ -7,8 +7,8 @@ use yaml_rust::YamlLoader;
 /// The schema for greeting storage in greeting accounts. This is what
 /// is serialized into the account and updated when hellos are sent.
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-pub struct GreetingSchema {
-    counter: u32,
+pub struct ShopSchema {
+    pub reps: [u32; 3],
 }
 
 /// Parses and returns the Solana yaml config on the system.
@@ -69,7 +69,7 @@ pub fn get_player() -> Result<Keypair> {
 /// force this program to generate a new greeting account and thus
 /// restart the counter you can change this value.
 pub fn get_greeting_seed() -> &'static str {
-    "hello"
+    "hello12"
 }
 
 /// Derives and returns the greeting account public key for a given
@@ -84,23 +84,27 @@ pub fn greeting_public_key(player: &Pubkey, program: &Pubkey) -> Result<Pubkey> 
 
 /// Determines and reports the size of greeting data.
 pub fn get_greeting_data_size() -> Result<usize> {
-    let encoded = GreetingSchema { counter: 0 }
+    let encoded = ShopSchema {
+            reps: [0;3]
+        }
         .try_to_vec()
         .map_err(|e| Error::SerializationError(e))?;
     Ok(encoded.len())
+    // Ok(4 + (3 * 4)) // vec<u32> w/ 3 elements
+    // Ok(3 * 4) // array[u32, 3] = 12 bytes
 }
 
-/// Deserializes a greeting account and reports the value of its
-/// greeting counter.
-pub fn get_greeting_count(data: &[u8]) -> Result<u32> {
-    let decoded = GreetingSchema::try_from_slice(data).map_err(
-        |e| Error::SerializationError(e)
-    )?;
-    Ok(decoded.counter)
-}
+// /// Deserializes a greeting account and reports the value of its
+// /// greeting counter.
+// pub fn get_greeting_count(data: &[u8]) -> Result<u32> {
+//     let decoded = GreetingSchema::try_from_slice(data).map_err(
+//         |e| Error::SerializationError(e)
+//     )?;
+//     Ok(decoded.counter)
+// }
 
-pub fn get_greeting_obj(data: &[u8]) -> Result<GreetingSchema> {
-    let decoded = GreetingSchema::try_from_slice(data).map_err(
+pub fn get_greeting_obj(data: &[u8]) -> Result<ShopSchema> {
+    let decoded = ShopSchema::try_from_slice(data).map_err(
         |e| Error::SerializationError(e)
     )?;
     Ok(decoded)
