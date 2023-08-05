@@ -104,8 +104,12 @@ pub fn create_greeting_account(
     let mut success = false;
     if let Err(_) = connection.get_account(&greeting_pubkey) {
         println!("... creating greeting account");
-        let lamport_requirement =
-            connection.get_minimum_balance_for_rent_exemption(utils::get_greeting_data_size()?)?;
+        let lamport_requirement = connection.get_minimum_balance_for_rent_exemption(
+            utils::get_greeting_data_size()?
+        )?;
+        println!("--- min_balance_for_rent_exemption: {}", lamport_requirement);
+        let greeting_data_size = utils::get_greeting_data_size().unwrap() as u64;
+        println!("--- greeting_data_size: {}", greeting_data_size);
 
         // This instruction creates an account with the key
         // "greeting_pubkey". The created account is owned by the
@@ -189,5 +193,6 @@ pub fn get_greeting_obj(
 ) -> Result<utils::GreetingSchema> {
     let greeting_pubkey = utils::greeting_public_key(&user.pubkey(), &program.pubkey())?;
     let greeting_account = connection.get_account(&greeting_pubkey)?;
+    println!("--- greeting_account_data: {:?}", &greeting_account.data);
     Ok(utils::get_greeting_obj(&greeting_account.data)?)
 }
