@@ -1,7 +1,6 @@
 use solana_sdk::signer::Signer;
 use solana_program::native_token::lamports_to_sol;
 use zeke_contract as zc;
-use zc::client::set_first_rating;
 use zc::utils::{
     get_shop_obj_size,
     program_derived_account_key, 
@@ -80,7 +79,8 @@ fn main() {
             "> Shop obj: {:?}",
             zc::client::get_shop_obj(&user, &program, &connection).unwrap()
         );
-        set_first_rating(42, &user, &program, &connection);
+        // zc::client::set_first_rating(42, &user, &program, &connection);
+        zc::client::add_rating(77, &user, &program, &connection);
     } else { 
         println!("\n3. Skipping \"Write to chain\"");
     }

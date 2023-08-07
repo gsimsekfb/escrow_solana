@@ -54,14 +54,21 @@ pub fn process_instruction(
     let fb = instruction_data[0]; // first byte
     match fb {
         fb if fb == OPCODE::AddRating as u8 => {
-            msg!("--- instruction 1: todo");
-            let mut data = (*account.data).borrow_mut();
-            *data = &mut [];
+            msg!("--- instruction 1: Add new rating");
+            let index = shop_data.ratings.iter().position(|&e| e == 0);
+            if index.is_none() { 
+                msg!("--- Not enough space, not adding the new rating");
+                return Ok(())
+            }
+            shop_data.ratings[index.unwrap()] = instruction_data[1] as u32;
+            shop_data.serialize(&mut &mut account.data.borrow_mut()[..])?;
+            msg!("--- success");
         } ,
         fb if fb == OPCODE::SetFirstRating as u8 => {
             msg!("--- instruction 2: Set the first rating of a shop");
             shop_data.ratings[0] = instruction_data[1] as u32;
             shop_data.serialize(&mut &mut account.data.borrow_mut()[..])?;
+            msg!("--- success");
         },
         _ => todo!()
     } 

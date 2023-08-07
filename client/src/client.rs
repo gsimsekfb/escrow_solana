@@ -164,14 +164,26 @@ pub fn create_instruction(
     )    
 }
 
-pub fn set_first_rating(
-    rep: u8,
+pub fn add_rating(
+    rating: u8,
     user: &Keypair,
     program: &Keypair,
     connection: &RpcClient,
 ) {
     let key = program_derived_account_key(&user.pubkey(), &program.pubkey()).unwrap();
-    let ins = create_instruction(ACTION::SetFirstRating, rep, program, key);
+    let ins = create_instruction(ACTION::AddRating, rating, program, key);
+    let result = send_action_tx(ins, user, connection);
+    println!("--- add_rating result: {:?}", result);
+}
+
+pub fn set_first_rating(
+    rating: u8,
+    user: &Keypair,
+    program: &Keypair,
+    connection: &RpcClient,
+) {
+    let key = program_derived_account_key(&user.pubkey(), &program.pubkey()).unwrap();
+    let ins = create_instruction(ACTION::SetFirstRating, rating, program, key);
     let result = send_action_tx(ins, user, connection);
     println!("--- set_first_rating result: {:?}", result);
 }
