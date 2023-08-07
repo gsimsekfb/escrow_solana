@@ -132,7 +132,7 @@ pub fn create_program_derived_account(
             &user.pubkey(),
             &program_derived_account,
             &user.pubkey(),
-            utils::seed_for_program_derived_account_creation(),
+            &utils::seed_for_program_derived_account_creation(),
             lamport_requirement,
             utils::get_shop_obj_size()? as u64,
             &program.pubkey(),
@@ -164,16 +164,16 @@ pub fn create_instruction(
     )    
 }
 
-pub fn set_reputation(
+pub fn set_first_rating(
     rep: u8,
     user: &Keypair,
     program: &Keypair,
     connection: &RpcClient,
 ) {
     let key = program_derived_account_key(&user.pubkey(), &program.pubkey()).unwrap();
-    let ins = create_instruction(ACTION::SetRep, rep, program, key);
+    let ins = create_instruction(ACTION::SetFirstRating, rep, program, key);
     let result = send_action_tx(ins, user, connection);
-    println!("--- set_reputation result: {:?}", result);
+    println!("--- set_first_rating result: {:?}", result);
 }
 
 /// Sends an instruction from USER to PROGRAM via CONNECTION. The

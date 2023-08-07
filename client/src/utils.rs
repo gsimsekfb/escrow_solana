@@ -8,13 +8,13 @@ use yaml_rust::YamlLoader;
 /// is serialized into the account and updated when hellos are sent.
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct ShopSchema {
-    pub reps: [u32; 3],
+    pub ratings: [u32; 3],
 }
 
 #[derive(Copy, Clone)]
 pub enum ACTION {
-    SetRep = 1,
-    ZeroAllReps = 2
+    AddRating = 1,
+    SetFirstRating = 2,
 }
 
 /// Parses and returns the Solana yaml config on the system.
@@ -73,8 +73,10 @@ pub fn get_user() -> Result<Keypair> {
 
 /// Gets the seed used to generate program derived account. If you'd like to
 /// force this program to generate a new program derived account (= new Shop obj)
-pub fn seed_for_program_derived_account_creation() -> &'static str {
-    "shop1"
+pub fn seed_for_program_derived_account_creation() -> String {
+    let str = std::env::args().collect::<Vec<_>>()[3].clone();
+    str
+    // e.g. "shop1"
 }
 
 /// Derives and returns the program derived account public key for a given
@@ -82,7 +84,7 @@ pub fn seed_for_program_derived_account_creation() -> &'static str {
 pub fn program_derived_account_key(user: &Pubkey, program: &Pubkey) -> Result<Pubkey> {
     Ok(Pubkey::create_with_seed(
         user,
-        seed_for_program_derived_account_creation(),
+        &seed_for_program_derived_account_creation(),
         program,
     )?)
 }
@@ -90,7 +92,7 @@ pub fn program_derived_account_key(user: &Pubkey, program: &Pubkey) -> Result<Pu
 /// Determines and reports the size of Shop obj.
 pub fn get_shop_obj_size() -> Result<usize> {
     let encoded = ShopSchema {
-            reps: [0;3]
+            ratings: [0;3]
         }
         .try_to_vec()
         .map_err(|e| Error::SerializationError(e))?;

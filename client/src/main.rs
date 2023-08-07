@@ -1,7 +1,7 @@
 use solana_sdk::signer::Signer;
 use solana_program::native_token::lamports_to_sol;
 use zeke_contract as zc;
-use zc::client::set_reputation;
+use zc::client::set_first_rating;
 use zc::utils::{
     get_shop_obj_size,
     program_derived_account_key, 
@@ -14,10 +14,13 @@ fn main() {
         .collect::<Result<Vec<&str>, _>>().unwrap().join("_")  // separator
     };
     let args = std::env::args().collect::<Vec<_>>();
-    if args.len() != 2 {
+    if args.len() != 4 {
         eprintln!(
-            "usage: {} <path to solana hello world example program keypair>",
-            args[0]
+            "\nError: Wrong number of args.
+            usage: e.g. \
+            cargo r ../program/target/deploy/helloworld-keypair.json r shop1
+            (w: write, r: read)
+            ",
         );
         std::process::exit(-1);
     }
@@ -67,19 +70,23 @@ fn main() {
     println!("(derived addr for a given user and program combination)\n");
 
     println!("--- Shop name: {}", seed_for_program_derived_account_creation());
-    println!("--- Shop data size: {} Bytes\n", get_shop_obj_size().unwrap() as u64);
+    println!("--- Shop data size: {} Bytes", get_shop_obj_size().unwrap() as u64);
 
     // 3. write 
-    println!("3. Write to chain: Sending tx");
-    println!("> Quick read before write:");
-    println!(
-        "> Shop obj: {:?}",
-        zc::client::get_shop_obj(&user, &program, &connection).unwrap()
-    );
-    set_reputation(33, &user, &program, &connection);
+    if args[2] == "w" {
+        println!("\n3. Write to chain: Sending tx");
+        println!("> Quick read before write:");
+        println!(
+            "> Shop obj: {:?}",
+            zc::client::get_shop_obj(&user, &program, &connection).unwrap()
+        );
+        set_first_rating(42, &user, &program, &connection);
+    } else { 
+        println!("\n3. Skipping \"Write to chain\"");
+    }
 
     // 4. read
-    println!("4. Read from chain:");
+    println!("\n4. Read from chain:");
     println!(
         "> Shop obj: {:?}",
         zc::client::get_shop_obj(&user, &program, &connection).unwrap()

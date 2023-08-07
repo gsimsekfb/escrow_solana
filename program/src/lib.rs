@@ -11,13 +11,13 @@ use solana_program::{
 // must match the `Shop` type defined by the client.
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct Shop {
-    pub reps: [u32; 3],
+    pub ratings: [u32; 3],
 }
 
 #[derive(Copy, Clone)]
 enum OPCODE {
-    SetRep = 1,
-    ZeroAllReps = 2
+    AddRating = 1,
+    SetFirstRating = 2,
 }
 
 // Declare the programs entrypoint. The entrypoint is the function
@@ -53,15 +53,14 @@ pub fn process_instruction(
 
     let fb = instruction_data[0]; // first byte
     match fb {
-        fb if fb == OPCODE::ZeroAllReps as u8 => {
-            msg!("--- instruction 0: todo");
+        fb if fb == OPCODE::AddRating as u8 => {
+            msg!("--- instruction 1: todo");
             let mut data = (*account.data).borrow_mut();
             *data = &mut [];
         } ,
-        // Set the first reputation of a shop
-        fb if fb == OPCODE::SetRep as u8 => {
-            msg!("--- instruction 1: Set the first reputation of a shop");
-            shop_data.reps[0] = instruction_data[1] as u32;
+        fb if fb == OPCODE::SetFirstRating as u8 => {
+            msg!("--- instruction 2: Set the first rating of a shop");
+            shop_data.ratings[0] = instruction_data[1] as u32;
             shop_data.serialize(&mut &mut account.data.borrow_mut()[..])?;
         },
         _ => todo!()

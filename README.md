@@ -34,11 +34,11 @@ Program's data account to read/write: 3J2hDhqR79ZwrGZ93tzEfcwR7gjs4kQqbwZGBLapFm
 3. Write to chain: Sending tx
 > Quick read before write:
 --- program derived account: [99, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-> Shop obj: ShopSchema { reps: [99, 0, 0] }
+> Shop obj: ShopSchema { ratings: [99, 0, 0] }
 --- set_reputation result: Ok(())
 4. Read from chain:
 --- program derived account: [33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-> Shop obj: ShopSchema { reps: [33, 0, 0] }
+> Shop obj: ShopSchema { ratings: [33, 0, 0] }
 
 End
 ```
