@@ -15,26 +15,30 @@ https://explorer.solana.com/tx/5YabTWTQcj6do8GhDqcc3XFe3YhRMFQWZCf8amtjLMAf7e1qz
 cd client
 cargo r ../program/target/deploy/helloworld-keypair.json
 
-1. Connected to remote solana node running version (1.16.5).
+1. Connected to remote solana node running version (1.16.6).
 
-(1_418_720) lamports are required for this transaction.
+(1_474_400) lamports are required for this transaction.
 User: 7GDXzkmtqNG2BZmesUyv2qrbRoovv71TApd1bWSsZAuc
-Balance: 14.201951411 Sol (14_201_951_411 lamports)
+Balance: 21.207656691 Sol (21_207_656_691 lamports)
 
-2. Creating account for greeting program to read/write its data...
-... not created, account already exists 
+2. Create account for program to read/write its data...
+... not created, account may already exist 
 
-Greeting Program: gF8U28yn9WfGFxh7Ykq7tBfCUhUZJWp2dAf7urbevPm
-Program's data account to read/write: 8b9KfuGKsC7HzyVTUrFPPvvEjinh512voroGSRgo7Beq
+Program: 7Hjsb3yWeLcYHfczSuPtUUaKdxxV1LHt4eDHcDik74iB
+Program's data account to read/write: 3J2hDhqR79ZwrGZ93tzEfcwR7gjs4kQqbwZGBLapFmgi
 (derived addr for a given user and program combination)
 
-3. Write to chain: Sending greeting ... (sending tx)
-> Quick read before write:
-> greeting obj: GreetingSchema { counter: 0 }
-> Success
+--- Shop name: shop1
+--- Shop data size: 12 Bytes
 
+3. Write to chain: Sending tx
+> Quick read before write:
+--- program derived account: [99, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+> Shop obj: ShopSchema { reps: [99, 0, 0] }
+--- set_reputation result: Ok(())
 4. Read from chain:
-> greeting obj: GreetingSchema { counter: 1 }
+--- program derived account: [33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+> Shop obj: ShopSchema { reps: [33, 0, 0] }
 
 End
 ```
@@ -108,7 +112,7 @@ that look something like this:
 ```
 Connected to remote solana node running version (1.7.16).
 (1418720) lamports are required for this transaction.
-(499999997700801080) lamports are owned by player.
+(499999997700801080) lamports are owned by user.
 creating greeting account
 (1) greetings have been sent.
 ```
@@ -227,7 +231,7 @@ again consult the solana config in
 `keypair_path` field and we read the keypair from where that points.
 
 To determine the payer's balance we use our connection and run
-`connection.get_balance(player_pubkey)`.
+`connection.get_balance(user_pubkey)`.
 
 ### Increasing the balance if there are not enough funds
 

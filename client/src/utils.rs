@@ -4,7 +4,7 @@ use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signer::keypair::{read_keypair_file, Keypair};
 use yaml_rust::YamlLoader;
 
-/// The schema for greeting storage in greeting accounts. This is what
+/// The schema for Shop data in program derived accounts. This is what
 /// is serialized into the account and updated when hellos are sent.
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct ShopSchema {
@@ -54,9 +54,9 @@ pub fn get_rpc_url() -> Result<String> {
     }
 }
 
-/// Gets the "player" or local solana wallet that has been configured
+/// Gets the "user" or local solana wallet that has been configured
 /// on the machine.
-pub fn get_player() -> Result<Keypair> {
+pub fn get_user() -> Result<Keypair> {
     let config = get_config()?;
     let path = match config["keypair_path"].as_str() {
         Some(s) => s,
@@ -71,45 +71,36 @@ pub fn get_player() -> Result<Keypair> {
     })
 }
 
-/// Gets the seed used to generate greeting accounts. If you'd like to
-/// force this program to generate a new greeting account and thus
-/// restart the counter you can change this value.
-pub fn get_greeting_seed() -> &'static str {
+/// Gets the seed used to generate program derived account. If you'd like to
+/// force this program to generate a new program derived account (= new Shop obj)
+pub fn seed_for_program_derived_account_creation() -> &'static str {
     "shop1"
 }
 
-/// Derives and returns the greeting account public key for a given
-/// PLAYER, PROGRAM combination.
-pub fn greeting_public_key(player: &Pubkey, program: &Pubkey) -> Result<Pubkey> {
+/// Derives and returns the program derived account public key for a given
+/// USER, PROGRAM combination.
+pub fn program_derived_account_key(user: &Pubkey, program: &Pubkey) -> Result<Pubkey> {
     Ok(Pubkey::create_with_seed(
-        player,
-        get_greeting_seed(),
+        user,
+        seed_for_program_derived_account_creation(),
         program,
     )?)
 }
 
-/// Determines and reports the size of greeting data.
-pub fn get_greeting_data_size() -> Result<usize> {
+/// Determines and reports the size of Shop obj.
+pub fn get_shop_obj_size() -> Result<usize> {
     let encoded = ShopSchema {
             reps: [0;3]
         }
         .try_to_vec()
         .map_err(|e| Error::SerializationError(e))?;
     Ok(encoded.len())
+    // E.g.
     // Ok(4 + (3 * 4)) // vec<u32> w/ 3 elements
     // Ok(3 * 4) // array[u32, 3] = 12 bytes
 }
 
-// /// Deserializes a greeting account and reports the value of its
-// /// greeting counter.
-// pub fn get_greeting_count(data: &[u8]) -> Result<u32> {
-//     let decoded = GreetingSchema::try_from_slice(data).map_err(
-//         |e| Error::SerializationError(e)
-//     )?;
-//     Ok(decoded.counter)
-// }
-
-pub fn get_greeting_obj(data: &[u8]) -> Result<ShopSchema> {
+pub fn get_shop_obj(data: &[u8]) -> Result<ShopSchema> {
     let decoded = ShopSchema::try_from_slice(data).map_err(
         |e| Error::SerializationError(e)
     )?;

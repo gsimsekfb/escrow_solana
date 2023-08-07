@@ -1,11 +1,12 @@
 use solana_sdk::signer::Signer;
 use solana_program::native_token::lamports_to_sol;
 use zeke_contract as zc;
-use zc::client::{set_reputation};
-use zc::utils::{greeting_public_key, get_greeting_seed};
-
-// Todo:
-// - rename Player, greet
+use zc::client::set_reputation;
+use zc::utils::{
+    get_shop_obj_size,
+    program_derived_account_key, 
+    seed_for_program_derived_account_creation
+};
 
 fn main() {
     let pretty_print = |num: u64| { // e.g. 10000 -> 10_000
@@ -35,8 +36,8 @@ fn main() {
         pretty_print(balance_requirement)
     );
 
-    let user = zc::utils::get_player().unwrap();
-    let user_balance = zc::client::get_player_balance(&user, &connection).unwrap();
+    let user = zc::utils::get_user().unwrap();
+    let user_balance = zc::client::get_user_balance(&user, &connection).unwrap();
     println!("User: {:?}",user.pubkey());
     println!("Balance: {} Sol ({} lamports)", 
         lamports_to_sol(user_balance), pretty_print(user_balance)
@@ -54,40 +55,34 @@ fn main() {
 
     let program = zc::client::get_program(keypair_path, &connection).unwrap();
 
-    // 2. Optional - Create account for greeting program to write its data 
+    // 2. Optional - Create account for program to write its data 
     // (Fee: 5000) (a new addr for a given user and program combination)
-    println!("\n2. Creating account for greeting program to read/write its data...");
-    zc::client::create_greeting_account(&user, &program, &connection).unwrap();
+    println!("\n2. Create account for program to read/write its data...");
+    zc::client::create_program_derived_account(&user, &program, &connection).unwrap();
 
     // Print some info
-    println!("\nGreeting Program: {:?}", program.pubkey());
-    let key = greeting_public_key(&user.pubkey(), &program.pubkey()).unwrap();
+    println!("\nProgram: {:?}", program.pubkey());
+    let key = program_derived_account_key(&user.pubkey(), &program.pubkey()).unwrap();
     println!("Program's data account to read/write: {:?}", key);
     println!("(derived addr for a given user and program combination)\n");
 
-    let sz = zc::utils::get_greeting_data_size().unwrap() as u64;
-    println!("--- sz: {}", sz);
-    println!("--- Shop: {}\n", get_greeting_seed());
+    println!("--- Shop name: {}", seed_for_program_derived_account_creation());
+    println!("--- Shop data size: {} Bytes\n", get_shop_obj_size().unwrap() as u64);
 
     // 3. write 
-    println!("3. Write to chain: Sending greeting ... (sending tx)");
+    println!("3. Write to chain: Sending tx");
     println!("> Quick read before write:");
     println!(
-        "> greeting obj: {:?}",
-        zc::client::get_greeting_obj(&user, &program, &connection).unwrap()
+        "> Shop obj: {:?}",
+        zc::client::get_shop_obj(&user, &program, &connection).unwrap()
     );
-    set_reputation(66, &user, &program, &connection);
-    println!("> Success\n");
+    set_reputation(33, &user, &program, &connection);
 
     // 4. read
     println!("4. Read from chain:");
-    // println!(
-    //     "> greeting count: {}",
-    //     zc::client::count_greetings(&user, &program, &connection).unwrap()
-    // );
     println!(
-        "> greeting obj: {:?}",
-        zc::client::get_greeting_obj(&user, &program, &connection).unwrap()
+        "> Shop obj: {:?}",
+        zc::client::get_shop_obj(&user, &program, &connection).unwrap()
     );
     println!("\nEnd\n");
 }

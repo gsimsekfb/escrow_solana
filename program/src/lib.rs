@@ -8,7 +8,7 @@ use solana_program::{
 };
 
 // The type of state managed by this program. The type defined here
-// much match the `GreetingAccount` type defined by the client.
+// must match the `Shop` type defined by the client.
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct Shop {
     pub reps: [u32; 3],
@@ -29,15 +29,12 @@ entrypoint!(process_instruction);
 // a single account that is owned by the program as an argument and
 // no instructions.
 //
-// The account passed in ought to contain a `GreetingAccount`. This
-// program will increment the `counter` value in the
-// `GreetingAccount` when executed.
+// The account passed must contain a `Shop` obj
 pub fn process_instruction(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
     instruction_data: &[u8],
 ) -> entrypoint::ProgramResult {
-    // Get the account that stores greeting count information.
     let accounts_iter = &mut accounts.iter();
     let account = next_account_info(accounts_iter)?;
 
@@ -50,11 +47,9 @@ pub fn process_instruction(
 
     msg!("--- account.data before: {:?}", account.data.borrow());
 
-    // Deserialize the greeting information from the account, modify
+    // Deserialize the Shop obj. from the account, modify
     // it, and then write it back.
-    let mut shop_data = Shop::try_from_slice(
-        &account.data.borrow()
-    )?;
+    let mut shop_data = Shop::try_from_slice(&account.data.borrow())?;
 
     let fb = instruction_data[0]; // first byte
     match fb {
@@ -63,9 +58,9 @@ pub fn process_instruction(
             let mut data = (*account.data).borrow_mut();
             *data = &mut [];
         } ,
-        // Set first rep of a shop
+        // Set the first reputation of a shop
         fb if fb == OPCODE::SetRep as u8 => {
-            msg!("--- instruction 1: increment greeting.counter");
+            msg!("--- instruction 1: Set the first reputation of a shop");
             shop_data.reps[0] = instruction_data[1] as u32;
             shop_data.serialize(&mut &mut account.data.borrow_mut()[..])?;
         },
