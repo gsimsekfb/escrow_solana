@@ -11,6 +11,12 @@ pub struct ShopSchema {
     pub reps: [u32; 3],
 }
 
+#[derive(Copy, Clone)]
+pub enum ACTION {
+    SetRep = 1,
+    ZeroAllReps = 2
+}
+
 /// Parses and returns the Solana yaml config on the system.
 pub fn get_config() -> Result<yaml_rust::Yaml> {
     let path = match home::home_dir() {
@@ -69,7 +75,7 @@ pub fn get_player() -> Result<Keypair> {
 /// force this program to generate a new greeting account and thus
 /// restart the counter you can change this value.
 pub fn get_greeting_seed() -> &'static str {
-    "hello12"
+    "shop1"
 }
 
 /// Derives and returns the greeting account public key for a given

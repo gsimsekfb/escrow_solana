@@ -1,6 +1,8 @@
 use crate::utils;
 use crate::utils::greeting_public_key;
 use crate::{Error, Result};
+use solana_program::pubkey::Pubkey;
+use utils::ACTION;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
 use solana_sdk::instruction::{AccountMeta, Instruction};
@@ -148,28 +150,46 @@ pub fn create_greeting_account(
     Ok(())
 }
 
+pub fn create_instruction(
+    action: ACTION,
+    data: u8,
+    program: &Keypair,
+    program_derived_account: Pubkey,
+) -> Instruction {
+    Instruction::new_with_bytes(
+        program.pubkey(),
+        &[action as u8, data],
+        vec![AccountMeta::new(program_derived_account, false)],
+    )    
+}
+
+pub fn set_reputation(
+    rep: u8,
+    player: &Keypair,
+    program: &Keypair,
+    connection: &RpcClient,
+) {
+    let key = greeting_public_key(&player.pubkey(), &program.pubkey()).unwrap();
+    let ins = create_instruction(ACTION::SetRep, rep, program, key);
+    let result = send_action_tx(ins, player, connection);
+    println!("--- set_reputation result: {:?}", result);
+}
+
 /// Sends an instruction from PLAYER to PROGRAM via CONNECTION. The
 /// instruction contains no data but does contain the address of our
 /// previously generated greeting account. The program will use that
 /// passed in address to update its greeting counter after verifying
 /// that it owns the account that we have passed in.
-pub fn greet(
+pub fn send_action_tx(
+    instruction: Instruction,
     player: &Keypair, 
-    program: &Keypair, 
-    connection: &RpcClient
+    connection: &RpcClient,
 ) -> Result<()> {
-    let greeting_pubkey = greeting_public_key(&player.pubkey(), &program.pubkey())?;
-
     // Submit an instruction to the chain which tells the program to
     // run. We pass the account that we want the results to be stored
     // in as one of the accounts arguments which the program will
     // handle.
 
-    let instruction = Instruction::new_with_bytes(
-        program.pubkey(),
-        &[1], // Todo: For now, [1] increments the counter
-        vec![AccountMeta::new(greeting_pubkey, false)],
-    );
     let message = Message::new(&[instruction], Some(&player.pubkey()));
     let transaction = Transaction::new(
         &[player], message, connection.get_recent_blockhash()?.0

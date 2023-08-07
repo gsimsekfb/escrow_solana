@@ -14,6 +14,12 @@ pub struct Shop {
     pub reps: [u32; 3],
 }
 
+#[derive(Copy, Clone)]
+enum OPCODE {
+    SetRep = 1,
+    ZeroAllReps = 2
+}
+
 // Declare the programs entrypoint. The entrypoint is the function
 // that will get run when the program is executed.
 #[cfg(not(feature = "exclude_entrypoint"))]
@@ -49,18 +55,21 @@ pub fn process_instruction(
     let mut shop_data = Shop::try_from_slice(
         &account.data.borrow()
     )?;
-    match instruction_data {
-        [0] => { // todo: how to reset account data ?
+
+    let fb = instruction_data[0]; // first byte
+    match fb {
+        fb if fb == OPCODE::ZeroAllReps as u8 => {
             msg!("--- instruction 0: todo");
             let mut data = (*account.data).borrow_mut();
             *data = &mut [];
         } ,
-        [1] => { // Set first rep of a shop
+        // Set first rep of a shop
+        fb if fb == OPCODE::SetRep as u8 => {
             msg!("--- instruction 1: increment greeting.counter");
-            shop_data.reps[0] += 1;
+            shop_data.reps[0] = instruction_data[1] as u32;
             shop_data.serialize(&mut &mut account.data.borrow_mut()[..])?;
         },
-       _ => todo!()
+        _ => todo!()
     } 
 
     msg!("--- account.data after: {:?}", account.data.borrow());

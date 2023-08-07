@@ -1,7 +1,11 @@
 use solana_sdk::signer::Signer;
 use solana_program::native_token::lamports_to_sol;
 use zeke_contract as zc;
-use zc::utils::greeting_public_key;
+use zc::client::{set_reputation};
+use zc::utils::{greeting_public_key, get_greeting_seed};
+
+// Todo:
+// - rename Player, greet
 
 fn main() {
     let pretty_print = |num: u64| { // e.g. 10000 -> 10_000
@@ -63,6 +67,7 @@ fn main() {
 
     let sz = zc::utils::get_greeting_data_size().unwrap() as u64;
     println!("--- sz: {}", sz);
+    println!("--- Shop: {}\n", get_greeting_seed());
 
     // 3. write 
     println!("3. Write to chain: Sending greeting ... (sending tx)");
@@ -71,7 +76,7 @@ fn main() {
         "> greeting obj: {:?}",
         zc::client::get_greeting_obj(&user, &program, &connection).unwrap()
     );
-    zc::client::greet(&user, &program, &connection).unwrap();
+    set_reputation(66, &user, &program, &connection);
     println!("> Success\n");
 
     // 4. read
