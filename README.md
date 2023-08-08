@@ -9,7 +9,7 @@ Info:
 Features:
 - Add new rating for a shop
 - Read all ratings of a shop
-- Set first rating of a shop (testing)
+- Set first rating of a shop (for testing)
 
 E.g.  
 Let's have a quick look at shop1  
