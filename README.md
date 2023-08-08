@@ -18,7 +18,21 @@ a) shop1 data lives in this PDA:
 https://solscan.io/account/4roTv8dUHJrybx5goVLvwmewKWgMzo5h4dHPM8EcjydM?cluster=devnet  
 &nbsp;&nbsp; // see the latest tx logs for more understanding 
   
-b) Transaction: Adding a new rating of 66 for shop1:
+b) Transaction: Adding a new rating of 66 for shop1:  
+Client side (user) logs:   
+```
+--- Shop name: shop1
+
+3. Write to chain: Sending tx
+> Quick read before write:
+> Shop obj: ShopSchema { ratings: [42, 0, 0] }
+--- add_rating result: Ok(())
+
+4. Read from chain:
+> Shop obj: ShopSchema { ratings: [42, 66, 0] }
+```
+
+Program logs (blockchain side)  
 ```
 Program log
 #1 Unknown program instruction
