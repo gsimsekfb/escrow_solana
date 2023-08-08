@@ -69,7 +69,8 @@ fn main() {
     println!("(derived addr for a given user and program combination)\n");
 
     println!("--- Shop name: {}", seed_for_program_derived_account_creation());
-    println!("--- Shop data size: {} Bytes", get_shop_obj_size().unwrap() as u64);
+    println!("--- Shop size: {} Bytes", get_shop_obj_size().unwrap() as u64);
+    println!("--- Shop obj: struct Shop {{ ratings: [u32; 3] }}");
 
     // 3. write 
     if args[2] == "w" {
@@ -80,7 +81,7 @@ fn main() {
             zc::client::get_shop_obj(&user, &program, &connection).unwrap()
         );
         // zc::client::set_first_rating(42, &user, &program, &connection);
-        zc::client::add_rating(77, &user, &program, &connection);
+        zc::client::add_rating(66, &user, &program, &connection);
     } else { 
         println!("\n3. Skipping \"Write to chain\"");
     }

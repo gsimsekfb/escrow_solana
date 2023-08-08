@@ -13,34 +13,43 @@ https://explorer.solana.com/tx/5YabTWTQcj6do8GhDqcc3XFe3YhRMFQWZCf8amtjLMAf7e1qz
 
 // Use Greeting program (smart contract)
 cd client
-cargo r ../program/target/deploy/helloworld-keypair.json
+usage: e.g. 
+  cargo r ../program/target/deploy/helloworld-keypair.json r shop1
+  cargo r ../program/target/deploy/helloworld-keypair.json w shop1
+(w: write, r: read)
+
+// Adding second rating of 66 (for now, this value is hardcoded in main.rs)
+cargo r ../program/target/deploy/helloworld-keypair.json w shop1
 
 1. Connected to remote solana node running version (1.16.6).
 
 (1_474_400) lamports are required for this transaction.
 User: 7GDXzkmtqNG2BZmesUyv2qrbRoovv71TApd1bWSsZAuc
-Balance: 21.207656691 Sol (21_207_656_691 lamports)
+Balance: 23.448148251 Sol (23_448_148_251 lamports)
 
 2. Create account for program to read/write its data...
 ... not created, account may already exist 
 
-Program: 7Hjsb3yWeLcYHfczSuPtUUaKdxxV1LHt4eDHcDik74iB
-Program's data account to read/write: 3J2hDhqR79ZwrGZ93tzEfcwR7gjs4kQqbwZGBLapFmgi
+Program: ET588YffkqKZCCirkxd1NaR11tXKmNUSGCAcgbTrvrMG
+Program's data account to read/write: 4roTv8dUHJrybx5goVLvwmewKWgMzo5h4dHPM8EcjydM
 (derived addr for a given user and program combination)
 
 --- Shop name: shop1
---- Shop data size: 12 Bytes
+--- Shop size: 12 Bytes
+--- Shop obj: struct Shop { ratings: [u32; 3] }
 
 3. Write to chain: Sending tx
 > Quick read before write:
---- program derived account: [99, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-> Shop obj: ShopSchema { ratings: [99, 0, 0] }
---- set_reputation result: Ok(())
+--- program derived account: [42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+> Shop obj: ShopSchema { ratings: [42, 0, 0] }
+--- add_rating result: Ok(())
+
 4. Read from chain:
---- program derived account: [33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-> Shop obj: ShopSchema { ratings: [33, 0, 0] }
+--- program derived account: [42, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 0]
+> Shop obj: ShopSchema { ratings: [42, 66, 0] }
 
 End
+
 ```
 
 # 1. Simple Solana Smart Contract Example
