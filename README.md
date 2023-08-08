@@ -52,6 +52,13 @@ End
 
 ```
 
+shop1 data lives in this PDA:  
+https://solscan.io/account/4roTv8dUHJrybx5goVLvwmewKWgMzo5h4dHPM8EcjydM?cluster=devnet  
+&nbsp;&nbsp; // see the latest tx logs for more understanding 
+  
+Adding a new rating of 66 for shop1, see the logs at the end of the page:   
+https://solscan.io/tx/4rq1efdNaLnP1kAjCC1FqyBUXXLTcMzn65UL3WvpxR28si7PgKfWnv79Y1AGUvMJxUeVmpjRGrBPgENL9toTAKXh?cluster=devnet  
+
 # 1. Simple Solana Smart Contract Example
 
 This repository demonstrates how to create and invoke a program on the
