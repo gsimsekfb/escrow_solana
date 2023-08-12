@@ -1,8 +1,9 @@
 use solana_sdk::signer::Signer;
+use solana_program::pubkey::Pubkey;
 use solana_program::native_token::lamports_to_sol;
+use std::str::FromStr;
 use zeke_contract as zc;
 use zc::utils::{
-    get_shop_obj_size,
     program_derived_account_key, 
     seed_for_program_derived_account_creation
 };
@@ -64,33 +65,27 @@ fn main() {
 
     // Print some info
     println!("\nProgram: {:?}", program.pubkey());
-    let key = program_derived_account_key(&user.pubkey(), &program.pubkey()).unwrap();
-    println!("Program's data account to read/write: {:?}", key);
+    let pda = program_derived_account_key(&user.pubkey(), &program.pubkey()).unwrap();
+    println!("Program's data account to read/write: {:?}", pda);
     println!("(derived addr for a given user and program combination)\n");
 
-    println!("--- Shop name: {}", seed_for_program_derived_account_creation());
-    println!("--- Shop size: {} Bytes", get_shop_obj_size().unwrap() as u64);
-    println!("--- Shop obj: struct Shop {{ ratings: [u32; 3] }}");
+    println!("--- PDA name: {}", seed_for_program_derived_account_creation());
+    println!("--- PDA bal: {}", connection.get_balance(&pda).unwrap());
 
+    //
+    let from = pda;
+    let to = Pubkey::from_str("4roTv8dUHJrybx5goVLvwmewKWgMzo5h4dHPM8EcjydM").unwrap();
+    println!("--- from: {}: {}", &from, connection.get_balance(&from).unwrap());
+    println!("--- to  : {}: {}", &to, connection.get_balance(&to).unwrap());
     // 3. write 
     if args[2] == "w" {
         println!("\n3. Write to chain: Sending tx");
-        println!("> Quick read before write:");
-        println!(
-            "> Shop obj: {:?}",
-            zc::client::get_shop_obj(&user, &program, &connection).unwrap()
+        let _ = zc::client::send_lamports(
+            &user, &program, &connection,
+            from, to, 5
         );
-        // zc::client::set_first_rating(42, &user, &program, &connection);
-        zc::client::add_rating(66, &user, &program, &connection);
     } else { 
         println!("\n3. Skipping \"Write to chain\"");
     }
-
-    // 4. read
-    println!("\n4. Read from chain:");
-    println!(
-        "> Shop obj: {:?}",
-        zc::client::get_shop_obj(&user, &program, &connection).unwrap()
-    );
     println!("\nEnd\n");
 }

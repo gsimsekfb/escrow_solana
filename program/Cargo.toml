@@ -20,5 +20,5 @@ solana-program = "1"
 borsh = "0.9.1"
 
 [lib]
-name = "helloworld"
+name = "escrow"
 crate-type = ["cdylib", "lib"]
