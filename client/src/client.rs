@@ -104,17 +104,16 @@ pub fn create_program_derived_account(
     let program_derived_account = 
         program_derived_account_key(&user.pubkey(), &program.pubkey())?;
 
+    let shop_obj_size = utils::get_shop_obj_size().unwrap();
+    println!("--- shop_obj_size: {}", shop_obj_size);
     let lamport_requirement = connection.get_minimum_balance_for_rent_exemption(
-        utils::get_shop_obj_size()?
+        shop_obj_size
     )?;
     println!("--- min_balance_for_rent_exemption: {}", lamport_requirement);
 
     let mut success = false;
     if let Err(_) = connection.get_account(&program_derived_account) {
         println!("... creating program derived account");
-
-        // let shop_obj_size = utils::get_shop_obj_size().unwrap() as u64;
-        // println!("--- shop_obj_size: {}", shop_obj_size);
 
         // This instruction creates an account with the key
         // "program_derived_account". The created account is owned by the
@@ -136,7 +135,7 @@ pub fn create_program_derived_account(
             &user.pubkey(),
             &utils::seed_for_program_derived_account_creation(),
             lamport_requirement,
-            utils::get_shop_obj_size()? as u64,
+            shop_obj_size as u64,
             &program.pubkey(),
         );
         let message = Message::new(&[instruction], Some(&user.pubkey()));
@@ -220,7 +219,7 @@ pub fn get_shop_obj(
     let account_key = 
         program_derived_account_key(&user.pubkey(), &program.pubkey())?;
     let account = connection.get_account(&account_key)?;
-    println!("--- program derived account: {:?}", &account.data);
+    // println!("--- program derived account: {:?}", &account.data);
     Ok(utils::get_shop_obj(&account.data)?)
 }
 
@@ -243,6 +242,63 @@ pub fn send_lamports(
     );
     let message = Message::new(&[instruction], Some(&user.pubkey()));
     let transaction = Transaction::new(&[user], message, connection.get_recent_blockhash()?.0);
+
+    let sig = connection.send_and_confirm_transaction(&transaction)?;
+    dbg!(sig);
+
+    Ok(())
+}
+
+pub fn save_new_purchase_data(
+    user: &Keypair,
+    program: &Keypair,
+    connection: &RpcClient,
+    buyer: Pubkey,
+    paid_amount: u8, // lamports
+    seller: Pubkey,
+) -> Result<()> {
+    // println!("--- sending {} lamports from {} to {} ...", lamports, &from, &to);
+    let pda = program_derived_account_key(&user.pubkey(), &program.pubkey())?;
+    let instruction = Instruction::new_with_bytes(
+        program.pubkey(),
+        &[1, paid_amount],
+        vec![
+            AccountMeta::new(pda, false),
+            AccountMeta::new(buyer, false),
+            AccountMeta::new(seller, false),
+        ],
+    );
+    let message = Message::new(&[instruction], Some(&user.pubkey()));
+    let transaction = Transaction::new(
+        &[user], message, connection.get_recent_blockhash()?.0
+    );
+
+    let sig = connection.send_and_confirm_transaction(&transaction)?;
+    dbg!(sig);
+
+    Ok(())
+}
+
+pub fn refund_to_buyer(
+    user: &Keypair,
+    program: &Keypair,
+    connection: &RpcClient,
+    buyer: Pubkey,
+) -> Result<()> {
+    println!("--- refund_to_buyer() {} ...", buyer);
+    let pda = program_derived_account_key(&user.pubkey(), &program.pubkey())?;
+    let instruction = Instruction::new_with_bytes(
+        program.pubkey(),
+        &[2],
+        vec![
+            AccountMeta::new(pda, false),
+            AccountMeta::new(buyer, false),
+        ],
+    );
+    let message = Message::new(&[instruction], Some(&user.pubkey()));
+    let transaction = Transaction::new(
+        &[user], message, connection.get_recent_blockhash()?.0
+    );
 
     let sig = connection.send_and_confirm_transaction(&transaction)?;
     dbg!(sig);

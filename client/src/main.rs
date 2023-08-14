@@ -73,19 +73,47 @@ fn main() {
     println!("--- PDA bal: {}", connection.get_balance(&pda).unwrap());
 
     //
-    let from = pda;
-    let to = Pubkey::from_str("4roTv8dUHJrybx5goVLvwmewKWgMzo5h4dHPM8EcjydM").unwrap();
-    println!("--- from: {}: {}", &from, connection.get_balance(&from).unwrap());
-    println!("--- to  : {}: {}", &to, connection.get_balance(&to).unwrap());
-    // 3. write 
+    let buyer = user.pubkey();
+    let seller = user.pubkey();
+    println!("--- buyer: {}: {}", &buyer, connection.get_balance(&buyer).unwrap());
+    println!("--- seller  : {}: {}", &seller, connection.get_balance(&seller).unwrap());
+    // 3. write
     if args[2] == "w" {
         println!("\n3. Write to chain: Sending tx");
-        let _ = zc::client::send_lamports(
-            &user, &program, &connection,
-            from, to, 5
-        );
+        // x
+        let _ = zc::client::refund_to_buyer(&user, &program, &connection, buyer);
+        // x
+        // println!("Quick read before write:");
+        // println!(
+        //     "> Shop obj: {:#?}",
+        //     zc::client::get_shop_obj(&user, &program, &connection).unwrap()
+        // );
+        // let _ = zc::client::save_new_purchase_data(
+        //     &user, &program, &connection,
+        //     buyer, 200, seller
+        // );
+        // x
+        // let from = pda;
+        // let to = Pubkey::from_str("4roTv8dUHJrybx5goVLvwmewKWgMzo5h4dHPM8EcjydM").unwrap();
+        // println!("--- from: {}: {}", &from, connection.get_balance(&from).unwrap());
+        // println!("--- to  : {}: {}", &to, connection.get_balance(&to).unwrap());
+        // let _ = zc::client::send_lamports(
+        //     &user, &program, &connection,
+        //     from, to, 5
+        // );
     } else { 
         println!("\n3. Skipping \"Write to chain\"");
     }
+
+    // 4. read
+    println!("\n4. Read from chain:");
+    println!(
+        "> Shop obj: {:#?}",
+        zc::client::get_shop_obj(&user, &program, &connection).unwrap()
+    );
+    println!("--- PDA bal: {}", connection.get_balance(&pda).unwrap());
+    println!("--- buyer: {}: {}", &buyer, connection.get_balance(&buyer).unwrap());
+    println!("--- seller  : {}: {}", &seller, connection.get_balance(&seller).unwrap());
+
     println!("\nEnd\n");
 }

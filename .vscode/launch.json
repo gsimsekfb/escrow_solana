@@ -12,7 +12,7 @@
             "args": [
                 "/Users/gsimsek/code/solana/escrow//program/target/deploy/escrow-keypair.json",
                 "w",
-                "shop1"
+                "buyer3"
             ],
             "cwd": "${workspaceFolder}"
         }

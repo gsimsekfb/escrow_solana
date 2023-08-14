@@ -8,7 +8,8 @@ use yaml_rust::YamlLoader;
 /// is serialized into the account and updated when hellos are sent.
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct ShopSchema {
-    pub ratings: [u32; 3],
+    pub buyer: Pubkey,
+    pub paid_amount: u8,
 }
 
 #[derive(Copy, Clone)]
@@ -92,7 +93,7 @@ pub fn program_derived_account_key(user: &Pubkey, program: &Pubkey) -> Result<Pu
 /// Determines and reports the size of Shop obj.
 pub fn get_shop_obj_size() -> Result<usize> {
     let encoded = ShopSchema {
-            ratings: [0;3]
+            buyer: Pubkey::default(), paid_amount: 0
         }
         .try_to_vec()
         .map_err(|e| Error::SerializationError(e))?;
