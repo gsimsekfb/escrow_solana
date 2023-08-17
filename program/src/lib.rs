@@ -67,37 +67,10 @@ pub fn process_instruction(
             **pda.try_borrow_mut_lamports()? -= paid_amount as u64;
             **buyer.try_borrow_mut_lamports()? += paid_amount as u64;
             msg!("--- pda.balance after: {:?}", pda.lamports);
-            msg!("--- buyer.balance after: {:?}", buyer.lamports);                    
+            msg!("--- buyer.balance after: {:?}", buyer.lamports);
         }
         _ => todo!()
     }
 
-    // 3. Return funds to buyer
-    // let paid_amount = Shop::try_from_slice(&pda.data.borrow())?.paid_amount;
-    // msg!("--- Refund {} lamports from {} to {}...", paid_amount, pda.key, buyer.key);
-    // msg!("--- pda.balance before: {:?}", pda.lamports);
-    // msg!("--- buyer.balance before: {:?}", buyer.lamports);
-    // **pda.try_borrow_mut_lamports()? -= paid_amount as u64;
-    // **buyer.try_borrow_mut_lamports()? += paid_amount as u64;
-    // msg!("--- pda.balance after: {:?}", pda.lamports);
-    // msg!("--- buyer.balance after: {:?}", buyer.lamports);
-
-    // 2. Save buyer
-    // Deserialize account data, modify it, and then write it back.
-    // msg!("--- Saving buyer: {}, paid_amount: {}", buyer.key, paid_amount);
-    // let mut shop_data = Shop::try_from_slice(&pda.data.borrow())?;
-    // shop_data.buyer = *buyer.key;
-    // shop_data.paid_amount = paid_amount;
-    // shop_data.serialize(&mut &mut pda.data.borrow_mut()[..])?;
-
-    // 1. Send Sol from to
-    // let accounts_iter = &mut accounts.iter();
-    // let from = next_account_info(accounts_iter)?;
-    // let to = next_account_info(accounts_iter)?;
-
-    // let lamports = instruction_data[0] as u64;
-    // msg!("--- Sending {} lamports from {} to {}...", lamports, from.key, to.key);
-    // **from.try_borrow_mut_lamports()? -= lamports;
-    // **to.try_borrow_mut_lamports()? += lamports;
     Ok(())
 }

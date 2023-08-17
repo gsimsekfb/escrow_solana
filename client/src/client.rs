@@ -165,38 +165,15 @@ pub fn create_instruction(
     )    
 }
 
-pub fn add_rating(
-    rating: u8,
-    user: &Keypair,
-    program: &Keypair,
-    connection: &RpcClient,
-) {
-    let key = program_derived_account_key(&user.pubkey(), &program.pubkey()).unwrap();
-    let ins = create_instruction(ACTION::AddRating, rating, program, key);
-    let result = send_action_tx(ins, user, connection);
-    println!("--- add_rating result: {:?}", result);
-}
-
-pub fn set_first_rating(
-    rating: u8,
-    user: &Keypair,
-    program: &Keypair,
-    connection: &RpcClient,
-) {
-    let key = program_derived_account_key(&user.pubkey(), &program.pubkey()).unwrap();
-    let ins = create_instruction(ACTION::SetFirstRating, rating, program, key);
-    let result = send_action_tx(ins, user, connection);
-    println!("--- set_first_rating result: {:?}", result);
-}
-
 /// Sends an instruction from USER to PROGRAM via CONNECTION. The
 /// instruction contains no data but does contain the address of our
 /// previously generated program derived account. The program will use that
 /// passed in address to update its program derived account data after verifying
 /// that it owns the account that we have passed in.
-pub fn send_action_tx(
+pub fn send_instruction(
     instruction: Instruction,
-    user: &Keypair, 
+    tx_account: &Keypair,
+    payer: &Pubkey,
     connection: &RpcClient,
 ) -> Result<()> {
     // Submit an instruction to the chain which tells the program to
@@ -204,9 +181,9 @@ pub fn send_action_tx(
     // in as one of the accounts arguments which the program will
     // handle.
 
-    let message = Message::new(&[instruction], Some(&user.pubkey()));
+    let message = Message::new(&[instruction], Some(&payer));
     let transaction = Transaction::new(
-        &[user], message, connection.get_recent_blockhash()?.0
+        &[tx_account], message, connection.get_recent_blockhash()?.0
     );
     connection.send_and_confirm_transaction(&transaction)?;
 
@@ -243,8 +220,9 @@ pub fn send_lamports(
     let message = Message::new(&[instruction], Some(&user.pubkey()));
     let transaction = Transaction::new(&[user], message, connection.get_recent_blockhash()?.0);
 
-    let sig = connection.send_and_confirm_transaction(&transaction)?;
-    dbg!(sig);
+    let _sig = connection.send_and_confirm_transaction(&transaction)?;
+    // println!("sig: {}", sig);
+
 
     Ok(())
 }
@@ -273,8 +251,8 @@ pub fn save_new_purchase_data(
         &[user], message, connection.get_recent_blockhash()?.0
     );
 
-    let sig = connection.send_and_confirm_transaction(&transaction)?;
-    dbg!(sig);
+    let _sig = connection.send_and_confirm_transaction(&transaction)?;
+    // println!("sig: {}", sig);
 
     Ok(())
 }
@@ -300,8 +278,8 @@ pub fn refund_to_buyer(
         &[user], message, connection.get_recent_blockhash()?.0
     );
 
-    let sig = connection.send_and_confirm_transaction(&transaction)?;
-    dbg!(sig);
+    let _sig = connection.send_and_confirm_transaction(&transaction)?;
+    // println!("sig: {}", sig);
 
     Ok(())
 }

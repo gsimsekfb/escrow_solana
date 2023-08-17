@@ -55,6 +55,15 @@ pub fn get_rpc_url() -> Result<String> {
     }
 }
 
+pub fn get_devnet_2_user() -> Result<Keypair> {
+    let key_path = "/Users/gsimsek/.config/solana/devnet-2.json";
+    read_keypair_file(key_path).map_err(|err| {
+        Error::InvalidConfig (
+            format!("failed to read keypair file ({}): ({})", key_path, err)
+        )
+    })
+}
+
 /// Gets the "user" or local solana wallet that has been configured
 /// on the machine.
 pub fn get_user() -> Result<Keypair> {
