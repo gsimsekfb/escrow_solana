@@ -10,9 +10,9 @@ use solana_program::{
 entrypoint!(process_instruction);
 
 // The type of state managed by this program. The type defined here
-// must match the `Shop` type defined by the client.
+// must match the `Escrow` type defined by the client.
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-pub struct Shop {
+pub struct Escrow {
     pub buyer: Pubkey,
     pub paid_amount: u8, // Lamports
     // refunded // todo
@@ -33,7 +33,7 @@ pub fn process_instruction(
     let pda = next_account_info(accounts_iter)?;
     msg!("--- instruction_data: {:?}", instruction_data);
     msg!("--- pda: {}", pda.key);
-    msg!("--- pda.Shop: {:?}", Shop::try_from_slice(&pda.data.borrow())?);
+    msg!("--- pda.Escrow: {:?}", Escrow::try_from_slice(&pda.data.borrow())?);
     // msg!("--- pda.data: {:?}", pda.data.borrow());
     msg!("--- accounts.len {}", accounts.len());
 
@@ -46,20 +46,20 @@ pub fn process_instruction(
             msg!("--- buyer: {}, paid_amount: {}", buyer.key, paid_amount);
             // let seller = next_account_info(accounts_iter)?;
             // msg!("--- seller: {}", seller.key);            
-            let mut shop_data = Shop::try_from_slice(&pda.data.borrow())?;
-            shop_data.buyer = *buyer.key;
-            shop_data.paid_amount = paid_amount;
-            shop_data.serialize(&mut &mut pda.data.borrow_mut()[..])?;
+            let mut program_data = Escrow::try_from_slice(&pda.data.borrow())?;
+            program_data.buyer = *buyer.key;
+            program_data.paid_amount = paid_amount;
+            program_data.serialize(&mut &mut pda.data.borrow_mut()[..])?;
             msg!("--- Success. Saved:");
-            msg!("--- pda.Shop: {:?}", Shop::try_from_slice(&pda.data.borrow())?);
+            msg!("--- pda.Escrow: {:?}", Escrow::try_from_slice(&pda.data.borrow())?);
             // msg!("--- pda.data: {:?}", pda.data.borrow());
         },
         fb if fb == ACTION::RefundToBuyer as u8 => {
             msg!("--- instruction RefundToBuyer");
             let buyer = next_account_info(accounts_iter)?;
-            let shop_data = Shop::try_from_slice(&pda.data.borrow())?;
-            // assert buyer.key shop_data.paid_amount.buyer // todo
-            let paid_amount =  shop_data.paid_amount;
+            let program_data = Escrow::try_from_slice(&pda.data.borrow())?;
+            // assert buyer.key program_data.paid_amount.buyer // todo
+            let paid_amount =  program_data.paid_amount;
             msg!("--- Refunding {} lamports from {} to buyer {}...",
                     paid_amount, pda.key, buyer.key);
             msg!("--- pda.balance before: {:?}", pda.lamports);

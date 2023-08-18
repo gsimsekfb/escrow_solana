@@ -71,7 +71,7 @@ pub fn run_balance_checks(user: &Keypair, connection: &RpcClient) {
 /// [here](https://docs.solana.com/implemented-proposals/rent#two-tiered-rent-regime)
 pub fn get_balance_requirement(connection: &RpcClient) -> Result<u64> {
     let account_fee =
-        connection.get_minimum_balance_for_rent_exemption(utils::get_shop_obj_size()?)?;
+        connection.get_minimum_balance_for_rent_exemption(utils::get_program_obj_size()?)?;
 
     let (_, fee_calculator) = connection.get_recent_blockhash()?;
     let transaction_fee = fee_calculator.lamports_per_signature * 100;
@@ -144,10 +144,10 @@ pub fn create_pda(
     let program_derived_account = 
         pda_key(&user.pubkey(), &program.pubkey())?;
 
-    let shop_obj_size = utils::get_shop_obj_size().unwrap();
-    println!("--- Program's object size: {} bytes", shop_obj_size);
+    let program_obj_size = utils::get_program_obj_size().unwrap();
+    println!("--- Program's object size: {} bytes", program_obj_size);
     let lamport_requirement = connection.get_minimum_balance_for_rent_exemption(
-        shop_obj_size
+        program_obj_size
     )?;
     println!("--- min_balance_for_rent_exemption: {}", pp(lamport_requirement));
 
@@ -175,7 +175,7 @@ pub fn create_pda(
             &user.pubkey(),
             &utils::seed_for_program_derived_account_creation(),
             lamport_requirement,
-            shop_obj_size as u64,
+            program_obj_size as u64,
             &program.pubkey(),
         );
         let message = Message::new(&[instruction], Some(&user.pubkey()));
@@ -230,14 +230,14 @@ pub fn send_instruction(
     Ok(())
 }
 
-pub fn get_shop_obj(
+pub fn get_program_obj(
     user: &Keypair, program: &Keypair, connection: &RpcClient
-) -> Result<utils::ShopSchema> {
+) -> Result<utils::EscrowSchema> {
     let account_key = 
         pda_key(&user.pubkey(), &program.pubkey())?;
     let account = connection.get_account(&account_key)?;
     // println!("--- program derived account: {:?}", &account.data);
-    Ok(utils::get_shop_obj(&account.data)?)
+    Ok(utils::get_program_obj(&account.data)?)
 }
 
 pub fn send_lamports(

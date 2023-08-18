@@ -2,7 +2,7 @@ use solana_sdk::signer::Signer;
 use solana_sdk::system_instruction::transfer;
 use zeke_contract as zc;
 use zc::client::{
-    create_pda, get_shop_obj, get_program,
+    create_pda, get_program_obj, get_program,
     print_program_info, refund_to_buyer, run_balance_checks,
     save_new_purchase_data, send_instruction
 };
@@ -78,14 +78,14 @@ fn main() {
     println!("\nb. Saving new purchase data ...");
     println!(
         "> before: {:#?}",
-        get_shop_obj(&user, &program, &connection).unwrap()
+        get_program_obj(&user, &program, &connection).unwrap()
     );
     let res = save_new_purchase_data(
         &user, &program, &connection,
         buyer, TEN_LAMPORTS as u8, seller
     );
     println!("res: {:?}", res);
-    let purchase_data = get_shop_obj(&user, &program, &connection).unwrap();
+    let purchase_data = get_program_obj(&user, &program, &connection).unwrap();
     println!("> after: {:#?}", purchase_data);
     assert_eq!(purchase_data.paid_amount, TEN_LAMPORTS as u8);
     assert_eq!(purchase_data.buyer, buyer);
