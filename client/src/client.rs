@@ -1,8 +1,10 @@
 use crate::utils;
-use crate::utils::program_derived_account_key;
+use crate::utils::{pp, pda_key};
 use crate::{Error, Result};
+use solana_program::native_token::lamports_to_sol;
 use solana_program::pubkey::Pubkey;
 use utils::ACTION;
+use utils::seed_for_program_derived_account_creation;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
 use solana_sdk::instruction::{AccountMeta, Instruction};
@@ -15,13 +17,51 @@ use solana_sdk::transaction::Transaction;
 /// `solana config set --url <URL>`. Information about what cluster
 /// has been configured is gleened from the solana config file
 /// `~/.config/solana/cli/config.yml`.
-pub fn establish_connection() -> Result<RpcClient> {
-    let rpc_url = utils::get_rpc_url()?;
-    Ok(RpcClient::new_with_commitment(
-        rpc_url,
+pub fn establish_connection() -> RpcClient {
+    let connection = RpcClient::new_with_commitment(
+        utils::get_rpc_url().unwrap(),
         CommitmentConfig::confirmed(),
-    ))
+    );
+    println!(
+        "\n1. Connected to remote solana node running version ({}).\n",
+        connection.get_version().unwrap()
+    );
+    connection
 }
+
+pub fn print_program_info(user: &Keypair, connection: &RpcClient, program: &Keypair) {
+    println!("\n3. Info");
+    let user_balance = get_user_balance(&user, &connection).unwrap();
+    println!("User   : {:?}",user.pubkey());
+    println!("Balance: {} Sol ({} lamports)", 
+        lamports_to_sol(user_balance), pp(user_balance)
+    );    
+    println!("Program: {:?}", program.pubkey());
+    let pda = pda_key(&user.pubkey(), &program.pubkey()).unwrap();
+    println!("PDA    : {:?}", pda);
+    println!("  (aka Program's data account to read/write)");
+    println!("  (aka Derived addr for a given user and program combination)");
+    println!("PDA name: {}\n", seed_for_program_derived_account_creation());
+}
+
+pub fn run_balance_checks(user: &Keypair, connection: &RpcClient) {
+    let balance_requirement = get_balance_requirement(&connection).unwrap();
+    println!(
+        "({}) lamports are required for this transaction.",
+        pp(balance_requirement)
+    );
+
+    let user_balance = get_user_balance(&user, &connection).unwrap();
+    if user_balance < balance_requirement {
+        let requested_lamports = balance_requirement - user_balance;
+        println!(
+            "User does not own sufficent lamports. Airdropping ({}) lamports.",
+            pp(requested_lamports)
+        );
+        request_airdrop(&user, &connection, requested_lamports).unwrap();
+    }    
+}
+
 
 /// Determines the amount of lamports that will be required to execute
 /// this smart contract. The minimum balance is calculated assuming
@@ -96,20 +136,20 @@ pub fn get_program(keypair_path: &str, connection: &RpcClient) -> Result<Keypair
 /// which allows it to own and manage the account. Additionally the
 /// address being derived means that we can regenerate it when we'd
 /// like to find the program derived account again later.
-pub fn create_program_derived_account(
+pub fn create_pda(
     user: &Keypair,
     program: &Keypair,
     connection: &RpcClient,
 ) -> Result<()> {
     let program_derived_account = 
-        program_derived_account_key(&user.pubkey(), &program.pubkey())?;
+        pda_key(&user.pubkey(), &program.pubkey())?;
 
     let shop_obj_size = utils::get_shop_obj_size().unwrap();
-    println!("--- shop_obj_size: {}", shop_obj_size);
+    println!("--- Program's object size: {} bytes", shop_obj_size);
     let lamport_requirement = connection.get_minimum_balance_for_rent_exemption(
         shop_obj_size
     )?;
-    println!("--- min_balance_for_rent_exemption: {}", lamport_requirement);
+    println!("--- min_balance_for_rent_exemption: {}", pp(lamport_requirement));
 
     let mut success = false;
     if let Err(_) = connection.get_account(&program_derived_account) {
@@ -194,7 +234,7 @@ pub fn get_shop_obj(
     user: &Keypair, program: &Keypair, connection: &RpcClient
 ) -> Result<utils::ShopSchema> {
     let account_key = 
-        program_derived_account_key(&user.pubkey(), &program.pubkey())?;
+        pda_key(&user.pubkey(), &program.pubkey())?;
     let account = connection.get_account(&account_key)?;
     // println!("--- program derived account: {:?}", &account.data);
     Ok(utils::get_shop_obj(&account.data)?)
@@ -236,7 +276,7 @@ pub fn save_new_purchase_data(
     seller: Pubkey,
 ) -> Result<()> {
     // println!("--- sending {} lamports from {} to {} ...", lamports, &from, &to);
-    let pda = program_derived_account_key(&user.pubkey(), &program.pubkey())?;
+    let pda = pda_key(&user.pubkey(), &program.pubkey())?;
     let instruction = Instruction::new_with_bytes(
         program.pubkey(),
         &[1, paid_amount],
@@ -264,7 +304,7 @@ pub fn refund_to_buyer(
     buyer: Pubkey,
 ) -> Result<()> {
     println!("--- refund_to_buyer() {} ...", buyer);
-    let pda = program_derived_account_key(&user.pubkey(), &program.pubkey())?;
+    let pda = pda_key(&user.pubkey(), &program.pubkey())?;
     let instruction = Instruction::new_with_bytes(
         program.pubkey(),
         &[2],

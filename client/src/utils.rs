@@ -18,6 +18,29 @@ pub enum ACTION {
     SetFirstRating = 2,
 }
 
+/// pretty_print
+pub fn pp(num: u64) -> String {
+    num.to_string().as_bytes().rchunks(3).rev().map(std::str::from_utf8)
+       .collect::<std::result::Result<Vec<&str>, _>>().unwrap().join("_")  
+       // _ is separator
+}
+
+pub fn get_args() -> Vec<String> {
+    let args = std::env::args().collect::<Vec<_>>();
+    if args.len() != 4 {
+        eprintln!(
+            "\nError: Wrong number of args.
+            usage: \n
+            cargo r ../program/target/deploy/helloworld-keypair.json r shop1
+            cargo r ../program/target/deploy/helloworld-keypair.json w shop1
+            (w: write, r: read)
+            ",
+        );
+        std::process::exit(-1);
+    }
+    args
+}
+
 /// Parses and returns the Solana yaml config on the system.
 pub fn get_config() -> Result<yaml_rust::Yaml> {
     let path = match home::home_dir() {
@@ -91,7 +114,7 @@ pub fn seed_for_program_derived_account_creation() -> String {
 
 /// Derives and returns the program derived account public key for a given
 /// USER, PROGRAM combination.
-pub fn program_derived_account_key(user: &Pubkey, program: &Pubkey) -> Result<Pubkey> {
+pub fn pda_key(user: &Pubkey, program: &Pubkey) -> Result<Pubkey> {
     Ok(Pubkey::create_with_seed(
         user,
         &seed_for_program_derived_account_creation(),
