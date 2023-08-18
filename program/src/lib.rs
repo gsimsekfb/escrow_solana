@@ -15,7 +15,9 @@ entrypoint!(process_instruction);
 pub struct Escrow {
     pub buyer: Pubkey,
     pub paid_amount: u8, // Lamports
-    // refunded // todo
+    pub refunded: bool,
+    // pub sent_to_seller: bool,
+    // pub purchase_complete: bool
 }
 
 #[derive(Copy, Clone)]
@@ -49,6 +51,7 @@ pub fn process_instruction(
             let mut program_data = Escrow::try_from_slice(&pda.data.borrow())?;
             program_data.buyer = *buyer.key;
             program_data.paid_amount = paid_amount;
+            program_data.refunded = false;
             program_data.serialize(&mut &mut pda.data.borrow_mut()[..])?;
             msg!("--- Success. Saved:");
             msg!("--- pda.Escrow: {:?}", Escrow::try_from_slice(&pda.data.borrow())?);
@@ -68,6 +71,10 @@ pub fn process_instruction(
             **buyer.try_borrow_mut_lamports()? += paid_amount as u64;
             msg!("--- pda.balance after: {:?}", pda.lamports);
             msg!("--- buyer.balance after: {:?}", buyer.lamports);
+            // assert
+            let mut program_data = Escrow::try_from_slice(&pda.data.borrow())?;
+            program_data.refunded = true;
+            program_data.serialize(&mut &mut pda.data.borrow_mut()[..])?;
         }
         _ => todo!()
     }

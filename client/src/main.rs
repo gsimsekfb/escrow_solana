@@ -6,9 +6,14 @@ use zc::client::{
     print_program_info, refund_to_buyer, run_balance_checks,
     save_new_purchase_data, send_instruction
 };
-use zc::utils::{
-    get_args, get_devnet_2_user, pp, pda_key
-};
+use zc::utils::{get_args, get_devnet_2_user, pp, pda_key};
+
+// Todo: Use FAUCET_PDA as buyer ?
+// use std::str::FromStr;
+// use solana_program::pubkey::Pubkey;
+// const FAUCET_PDA: &str = "4uHT4GBdZPimek4Zv2PquUtup7J8wNkwuU9Lna2pS6zQ";
+// let buyer = Pubkey::from_str(FAUCET_PDA).unwrap();
+// let buyer_keypair = &user;
 
 fn main() {
     let args = get_args();
@@ -32,13 +37,6 @@ fn main() {
     print_program_info(&user, &connection, &program);
 
     println!("Escrow info:");
-    // Todo: Use FAUCET_PDA as buyer ?
-    // use std::str::FromStr;
-    // use solana_program::pubkey::Pubkey;
-    // const FAUCET_PDA: &str = "4uHT4GBdZPimek4Zv2PquUtup7J8wNkwuU9Lna2pS6zQ";
-    // let buyer = Pubkey::from_str(FAUCET_PDA).unwrap();
-    // let buyer_keypair = &user;
-    //
     let buyer_keypair = get_devnet_2_user().unwrap();
     let buyer = buyer_keypair.pubkey();
     let seller = user.pubkey();
@@ -50,11 +48,12 @@ fn main() {
     println!("--- buyer bal: {}", pp(buyer_balance_0));
     // println!("--- seller bal: {}", pp(connection.get_balance(&seller).unwrap()));        
 
-    // 4. write
     if args[2] != "w" {
         println!("\nEND\nProgram ended without write to chain\n");
         return
     }
+
+    // 4. write to chain
     const TEN_LAMPORTS: u64 = 10;
     println!("\n4. Write to chain: Sending transaction(s) ...");
 
@@ -100,6 +99,9 @@ fn main() {
     println!("--- buyer bal: {}", pp(buyer_balance_2));
     assert_eq!(pda_balance_2, pda_balance_0);
     assert_eq!(buyer_balance_2, buyer_balance_0 - TX_COST);
+
+    let purchase_data = get_program_obj(&user, &program, &connection).unwrap();
+    println!("\nPurchase complete:\n{:#?}", purchase_data);
 
     println!("\nEnd\n");
 }
