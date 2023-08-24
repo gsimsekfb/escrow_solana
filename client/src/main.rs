@@ -2,7 +2,7 @@ use solana_sdk::signer::Signer;
 use solana_sdk::system_instruction::transfer;
 use zeke_contract as zc;
 use zc::client::{
-    create_pda, get_program_obj, get_program,
+    create_pda, get_program_obj, get_program, is_post_delivered,
     print_program_info, refund_to_buyer, run_balance_checks,
     save_new_purchase_data, send_instruction
 };
@@ -35,7 +35,6 @@ fn main() {
 
     // 3. Print some info
     print_program_info(&user, &connection, &program);
-
     println!("Escrow info:");
     let buyer_keypair = get_devnet_2_user().unwrap();
     let buyer = buyer_keypair.pubkey();
@@ -49,6 +48,16 @@ fn main() {
     // println!("--- seller bal: {}", pp(connection.get_balance(&seller).unwrap()));        
 
     if args[2] != "w" {
+        println!("\n4. Reading is_post_delivered ...");
+        use solana_sdk::pubkey::Pubkey;
+        use std::str::FromStr;
+        let chainlink_program = Pubkey::from_str("HEvSKofvBgfaexv23kMabbYqxasxU3mQ4ibBMEmJWHny").unwrap();
+        let feed_account = Pubkey::from_str("669U43LNHx7LsVj95uYksnhXUfWKDsdzVqev3V4Jpw3P").unwrap();
+        let _res = is_post_delivered(&user, &program, &connection,
+            feed_account, chainlink_program);
+        // println!("_res: {:#?}", _res); // for debugging
+        let purchase_data = get_program_obj(&user, &program, &connection).unwrap();
+        println!("\nPurchase data (on chain):\n{:#?}\n", purchase_data);
         println!("\nEND\nProgram ended without write to chain\n");
         return
     }

@@ -10,7 +10,8 @@ use yaml_rust::YamlLoader;
 pub struct EscrowSchema {
     pub buyer: Pubkey,
     pub paid_amount: u8,
-    pub refunded: bool
+    pub refunded: bool,
+    pub post_delivered: bool,
 }
 
 #[derive(Copy, Clone)]
@@ -126,7 +127,8 @@ pub fn pda_key(user: &Pubkey, program: &Pubkey) -> Result<Pubkey> {
 /// Determines and reports the size of Program's obj.
 pub fn get_program_obj_size() -> Result<usize> {
     let encoded = EscrowSchema {
-            buyer: Pubkey::default(), paid_amount: 0, refunded: false
+            buyer: Pubkey::default(), paid_amount: 0, refunded: false,
+            post_delivered: false
         }
         .try_to_vec()
         .map_err(|e| Error::SerializationError(e))?;

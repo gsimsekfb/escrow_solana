@@ -323,3 +323,31 @@ pub fn refund_to_buyer(
 
     Ok(())
 }
+
+pub fn is_post_delivered(
+    user: &Keypair,
+    program: &Keypair,
+    connection: &RpcClient,
+    feed_account: Pubkey,
+    chainlink_program: Pubkey,
+) -> Result<()> {
+    let pda = pda_key(&user.pubkey(), &program.pubkey())?;
+    let instruction = Instruction::new_with_bytes(
+        program.pubkey(),
+        &[2],
+        vec![
+            AccountMeta::new(pda, false),
+            AccountMeta::new_readonly(feed_account, false),
+            AccountMeta::new_readonly(chainlink_program, false),
+        ],
+    );
+    let message = Message::new(&[instruction], Some(&user.pubkey()));
+    let transaction = Transaction::new(
+        &[user], message, connection.get_recent_blockhash()?.0
+    );
+
+    let _sig = connection.send_and_confirm_transaction(&transaction)?;
+    // println!("sig: {}", sig);
+
+    Ok(())
+}
