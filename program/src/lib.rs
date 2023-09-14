@@ -10,33 +10,6 @@ use solana_program::{
 
 entrypoint!(process_instruction);
 
-struct Decimal {
-    pub value: i128,
-    pub decimals: u32,
-}
-
-impl Decimal {
-    pub fn new(value: i128, decimals: u32) -> Self {
-        Decimal { value, decimals }
-    }
-}
-
-impl std::fmt::Display for Decimal {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut scaled_val = self.value.to_string();
-        if scaled_val.len() <= self.decimals as usize {
-            scaled_val.insert_str(
-                0,
-                &vec!["0"; self.decimals as usize - scaled_val.len()].join(""),
-            );
-            scaled_val.insert_str(0, "0.");
-        } else {
-            scaled_val.insert(scaled_val.len() - self.decimals as usize, '.');
-        }
-        f.write_str(&scaled_val)
-    }
-}
-
 // The type of state managed by this program. The type defined here
 // must match the `Escrow` type defined by the client.
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
@@ -69,11 +42,20 @@ pub fn process_instruction(
     msg!("--- accounts.len {}", accounts.len());
 
     if 33 > 0 {
-        msg!("--- Chainlink Price Feed Consumer entrypoint");
+        msg!("--- Reading Chainlink Price Feed ...");
+        // https://docs.chain.link/data-feeds/solana/using-data-feeds-solana#the-chainlink-data-feeds-ocr2-program
+        // https://docs.chain.link/data-feeds/price-feeds/addresses?network=solana#Solana%20Devnet
         // This is the account of the price feed data to read from
+        // For Solana Devnet ETH/USD: 669U43LNHx7LsVj95uYksnhXUfWKDsdzVqev3V4Jpw3P
         let feed_account = next_account_info(accounts_iter)?;
-        // This is the chainlink solana program ID
+        msg!("--- feed_account:{}", feed_account.key);
+        // The Chainlink Data Feeds OCR2 Program
+        // The program that owns the data feeds on both Devnet and Mainnet is 
+        // HEvSKofvBgfaexv23kMabbYqxasxU3mQ4ibBMEmJWHny
+        // This is the program ID that you use to retrieve Chainlink Price Data
+        // on-chain in your program
         let chainlink_program = next_account_info(accounts_iter)?;
+        msg!("--- chainlink_program:{}", chainlink_program.key);
         let round = chainlink::latest_round_data(
             chainlink_program.clone(),
             feed_account.clone(),
@@ -87,13 +69,10 @@ pub fn process_instruction(
             feed_account.clone(),
         )?;
         let answer = round.answer.to_string();
-        let decimal_print = Decimal::new(round.answer, u32::from(decimals));
         let dec_digits = answer.len()-decimals as usize;
         let price_str: String = answer.to_string().chars().take(dec_digits).collect();
         let price: u32 = price_str.parse().unwrap();
-        msg!("price is {}", price);
-        msg!("decimals is {}", decimals);
-        msg!("{} price is {}", description, decimal_print);
+        msg!("{} price (short): {}", description, price);
         return Ok(());
     }
 
