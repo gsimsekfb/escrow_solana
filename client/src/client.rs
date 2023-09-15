@@ -328,13 +328,30 @@ pub fn is_post_delivered(
     user: &Keypair,
     program: &Keypair,
     connection: &RpcClient,
+) {
+    println!("\n4. Reading is_post_delivered ...");
+    use std::str::FromStr;
+    let chainlink_program = Pubkey::from_str("HEvSKofvBgfaexv23kMabbYqxasxU3mQ4ibBMEmJWHny").unwrap();
+    let feed_account = Pubkey::from_str("669U43LNHx7LsVj95uYksnhXUfWKDsdzVqev3V4Jpw3P").unwrap();
+    let _res = is_post_delivered_tx(&user, &program, &connection,
+        feed_account, chainlink_program);
+    // println!("_res: {:#?}", _res); // for debugging
+    let purchase_data = get_program_obj(&user, &program, &connection).unwrap();
+    println!("\nPurchase data (on chain):\n{:#?}\n", purchase_data);
+    println!("\nEND\n");
+}
+
+pub fn is_post_delivered_tx(
+    user: &Keypair,
+    program: &Keypair,
+    connection: &RpcClient,
     feed_account: Pubkey,
     chainlink_program: Pubkey,
 ) -> Result<()> {
     let pda = pda_key(&user.pubkey(), &program.pubkey())?;
     let instruction = Instruction::new_with_bytes(
         program.pubkey(),
-        &[2],
+        &[3],
         vec![
             AccountMeta::new(pda, false),
             AccountMeta::new_readonly(feed_account, false),

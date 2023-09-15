@@ -47,21 +47,17 @@ fn main() {
     println!("--- buyer bal: {}", pp(buyer_balance_0));
     // println!("--- seller bal: {}", pp(connection.get_balance(&seller).unwrap()));        
 
+    // todo: refactor
     if args[2] != "w" {
-        println!("\n4. Reading is_post_delivered ...");
-        use solana_sdk::pubkey::Pubkey;
-        use std::str::FromStr;
-        let chainlink_program = Pubkey::from_str("HEvSKofvBgfaexv23kMabbYqxasxU3mQ4ibBMEmJWHny").unwrap();
-        let feed_account = Pubkey::from_str("669U43LNHx7LsVj95uYksnhXUfWKDsdzVqev3V4Jpw3P").unwrap();
-        let _res = is_post_delivered(&user, &program, &connection,
-            feed_account, chainlink_program);
-        // println!("_res: {:#?}", _res); // for debugging
-        let purchase_data = get_program_obj(&user, &program, &connection).unwrap();
-        println!("\nPurchase data (on chain):\n{:#?}\n", purchase_data);
-        println!("\nEND\nProgram ended without write to chain\n");
+        is_post_delivered(&user, &program, &connection);
         return
     }
 
+    //// From this point run Story-2:
+    //// Buyer sends X SOL to Escrow
+    //// Escrow ACTION::SavePurchaseData
+    //// Escrow ACTION::RefundToBuyer
+    //
     // 4. write to chain
     const TEN_LAMPORTS: u64 = 10;
     println!("\n4. Write to chain: Sending transaction(s) ...");

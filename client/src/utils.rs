@@ -12,6 +12,7 @@ pub struct EscrowSchema {
     pub paid_amount: u8,
     pub refunded: bool,
     pub post_delivered: bool,
+    pub eth_usd_price: u32, // For development purposes
 }
 
 #[derive(Copy, Clone)]
@@ -128,7 +129,7 @@ pub fn pda_key(user: &Pubkey, program: &Pubkey) -> Result<Pubkey> {
 pub fn get_program_obj_size() -> Result<usize> {
     let encoded = EscrowSchema {
             buyer: Pubkey::default(), paid_amount: 0, refunded: false,
-            post_delivered: false
+            post_delivered: false, eth_usd_price: 0
         }
         .try_to_vec()
         .map_err(|e| Error::SerializationError(e))?;
