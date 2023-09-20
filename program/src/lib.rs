@@ -49,45 +49,43 @@ pub fn process_instruction(
     // todo: better use match but it will be two indentations and
     //       more readable with if (see previous versions with match used)
     let fb = instruction_data[0]; // first byte
-    if fb == ACTION::TransferTokenToBuyer as u8 { // todo: see error below
-        // cargo r ../program/target/deploy/escrow-keypair.json r buyer3
-        // error: "Program 6HJLw99sjqgpv8DPizbCRUPvsnCUcQ6zN1YEmXio35xr 
-        // consumed 200000 of 200000 compute units",
-        msg!("--- instruction TransferTokenToBuyer");
+    if fb == ACTION::TransferTokenToBuyer as u8 {
+        // Accounts required for token transfer
         let _user = next_account_info(accounts_iter)?;
-        let to_ata = next_account_info(accounts_iter)?; // to token acc.
+        // 1. Token account we hold
+        let source_token_account = next_account_info(accounts_iter)?;
+        // 2. Token account to send to
+        let destination_token_account = next_account_info(accounts_iter)?;
+        // 3. Our wallet address
+        let source_token_account_holder = next_account_info(accounts_iter)?;
+        // 4. Token Program
         let token_program = next_account_info(accounts_iter)?;
-        let token_acc = next_account_info(accounts_iter)?;
-        let pda_token_acc = next_account_info(accounts_iter)?;
-        let token = token_acc.key;
-        msg!("--- Sending token {}, from {} to {}...",
-                  token, pda.key, to_ata.key);
-        let source_token_account = pda_token_acc;
-        let destination_token_account = to_ata;
-        let source_token_account_holder = pda;
-        msg!("--- source_token_account: {:?}", source_token_account.key);
-        msg!("--- destination_token_account: {:?}", destination_token_account.key);
-        msg!("--- source_token_account_holder: {:?}", source_token_account_holder.key);
-        let res1 = spl_token::instruction::transfer(
+        let token_transfer_amount = 1_000_000_000;
+        msg!(
+            "Transferring {} tokens from {} to {}",
+            token_transfer_amount,
+            source_token_account.key.to_string(),
+            destination_token_account.key.to_string()
+        );
+        let transfer_tokens_instruction = spl_token::instruction::transfer(
             &token_program.key,
             &source_token_account.key,
             &destination_token_account.key,
             &source_token_account_holder.key,
             &[&source_token_account_holder.key],
-            1 // token_transfer_amount,
-        );
-        msg!("--- res1: {:#?}", res1); // for dev.
-        let ins = &res1.unwrap();
+            token_transfer_amount,
+        )?;
         let required_accounts_for_transfer = [
             source_token_account.clone(),
             destination_token_account.clone(),
             source_token_account_holder.clone(),
         ];
-        let res2 = solana_program::program::invoke(
-            &ins,
+        // Passing the TransactionInstruction to send
+        solana_program::program::invoke(
+            &transfer_tokens_instruction,
             &required_accounts_for_transfer,
         )?;
-        msg!("--- res2: {:#?}", res2); // for dev.
+        msg!("Transfer successful");
     }
     else if fb == ACTION::IsPostDelivered as u8 {
         msg!("--- instruction IsPostDelivered");

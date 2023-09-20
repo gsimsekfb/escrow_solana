@@ -61,10 +61,12 @@ fn main() {
         // is_post_delivered(&user, &program, &connection);
         use solana_sdk::pubkey::Pubkey;
         use std::str::FromStr;
-        // to: 7GDX..ZAuc's token acc. 2ULu...h2GA
-        let to = Pubkey::from_str("2ULuUe9z1fYKv5GC9UrFTztCQpnBsU8M3SjCoJVZh2GA").unwrap();
+        // to: user aka 7GDX..ZAuc's token acc. 2ULu...h2GA
+        // let to = Pubkey::from_str("2ULuUe9z1fYKv5GC9UrFTztCQpnBsU8M3SjCoJVZh2GA").unwrap();
+        // to: buyer3's pda's token acc.
+        let to = Pubkey::from_str("5vnCDs9eBNxA8S4LnftKC8bbA8eNH7mSy4hsqvFFwfPo").unwrap();
         let res = transfer_token_to(&user, &program, &connection, to);
-        println!("res: {:#?}", res);        
+        println!("res: {:#?}", res);
         return
     }
 

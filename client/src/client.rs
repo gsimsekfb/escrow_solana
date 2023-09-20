@@ -378,21 +378,33 @@ pub fn transfer_token_to(
     println!("--- \ntransfer_token_to() {} ...", to);
     let pda = pda_key(&user.pubkey(), &program.pubkey())?;
     use std::str::FromStr;
+    // NFT - todo
     // let token = Pubkey::from_str("AvDZLmBkWABdqyqCoqpGrSCwEeBYznirq2wWoQ9k3hUc").unwrap();
+    // FT
     let token = Pubkey::from_str("5CazNWuHgCP6s4kqnqZB4N9BfURNQ4RUrpmVW6h6UfAh").unwrap();
     let token_program = Pubkey::from_str("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA").unwrap();
     let pda_token_acc = Pubkey::from_str("5vnCDs9eBNxA8S4LnftKC8bbA8eNH7mSy4hsqvFFwfPo").unwrap();
-    
+    let my_token_acc = Pubkey::from_str("2ULuUe9z1fYKv5GC9UrFTztCQpnBsU8M3SjCoJVZh2GA").unwrap();
+
+    // 1. [writable] Token account we hold (from)
+    let source_token_account = my_token_acc;
+    // 2. [writable] Token account to send  (to)
+    let destination_token_account = pda_token_acc;
+    // 3. [signer] Source Token Account holder's PubKey
+    let source_token_account_holder = user.pubkey();
+    // 4. [] Token Program
+    // let token_program = next_account_info(accounts_iter)?;
+
     let instruction = Instruction::new_with_bytes(
         program.pubkey(),
         &[4],
         vec![
             AccountMeta::new(pda, false),
             AccountMeta::new(user.pubkey(), true),
-            AccountMeta::new(to, false),
+            AccountMeta::new(source_token_account, false),
+            AccountMeta::new(destination_token_account, false),
+            AccountMeta::new(source_token_account_holder, false),
             AccountMeta::new_readonly(token_program, false),
-            AccountMeta::new_readonly(token, false),
-            AccountMeta::new_readonly(pda_token_acc, false),
         ],
     );
     let message = Message::new(&[instruction], Some(&user.pubkey()));
