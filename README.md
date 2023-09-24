@@ -1,4 +1,6 @@
-# Escrow program (smart contract) - (work in progress)
+# Escrow program (smart contract) 
+(work in progress) 
+
 This repository demonstrates how to create/deploy and use a simple Escrow program (smart contract) for the purchase of tokens and physical items on the Solana blockchain.
 
 Features: 
